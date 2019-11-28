@@ -4,15 +4,20 @@
     "asbuild:optimized": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --sourceMap --validate --optimize",
     "asbuild": "npm run asbuild:untouched",
     "test": "jest",
-    "watch:test": "jest --watchAll",
-    "watch:asbuild": "nodemon --watch assembly -e ts -x \"npm run asbuild\""
+    "bundle": "rollup  --config",
+    "watch:asbuild": "nodemon --watch assembly -e ts -x \"npm run asbuild\"",
+    "watch:test": "nodemon --watch build --watch test -e wasm,js -x \"npm run test\"",
+    "watch:web": "nodemon --watch web --ignore web/bundle.js -x \"npm run bundle\""
   },
   "devDependencies": {
     "@assemblyscript/loader": "^0.8.1",
     "assemblyscript": "^0.8.1",
     "dasm": "^6.0.1",
     "jest": "^24.9.0",
-    "nodemon": "^2.0.1"
+    "nodemon": "^2.0.1",
+    "rollup": "^1.27.5",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
   },
   "jest": {
     "testRegex": [
