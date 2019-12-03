@@ -1,6 +1,7 @@
 import Memory from "./memory";
 
 //http://www.obelisk.me.uk/6502/reference.html
+//http://nparker.llx.com/a2/opcodes.html
 
 export class StatusRegister {
   zero: bool;
@@ -57,7 +58,65 @@ export class CPU {
 
     const opcode: u8 = this.memory.read(this.pc++);
 
+    trace(opcode.toString());
+
     switch (opcode) {
+      case 0x69: {
+        // ADC Immediate
+        const value: u8 = this.memory.read(this.pc++);
+        trace("ADC " + value.toString());
+        this.accumulator += value;
+        this.cyclesRemaining = 1;
+        break;
+      }
+      case 0x65: {
+        // ADC Zero Page
+        const addr: u8 = this.memory.read(this.pc++);
+        const value = this.memory.read(addr);
+        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
+        this.accumulator += value;
+        this.cyclesRemaining = 2;
+        break;
+      }
+      case 0x75: {
+        // ADC Zero Page, X
+        const addr: u8 = this.memory.read(this.pc++);
+        const value = this.memory.read(addr + this.xRegister);
+        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
+        this.accumulator += value;
+        this.cyclesRemaining = 3;
+        break;
+      }
+      case 0x6d: {
+        // ADC Absolute
+        const addr: u32 =
+          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+        const value = this.memory.read(addr);
+        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
+        this.accumulator += value as u8;
+        this.cyclesRemaining = 3;
+        break;
+      }
+      case 0x7d: {
+        // ADC Absolute, X
+        const addr: u32 =
+          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+        const value = this.memory.read(addr + this.xRegister);
+        trace("ADC ax addr=" + addr.toString() + ", value=" + value.toString());
+        this.accumulator += value as u8;
+        this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
+        break;
+      }
+      case 0x79: {
+        // ADC Absolute, Y
+        const addr: u32 =
+          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+        const value = this.memory.read(addr + this.yRegister);
+        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
+        this.accumulator += value as u8;
+        this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
+        break;
+      }
       case 0xa9: {
         // LDA Immediate
         const value: u8 = this.memory.read(this.pc++);
@@ -146,6 +205,19 @@ export class CPU {
         this.yRegister = this.yRegister - 1;
         this.statusRegister.setStatus(this.yRegister);
         this.cyclesRemaining = 1;
+        break;
+      }
+      case 0xd0: {
+        // BNE
+        const value: i8 = this.memory.read(this.pc++) as i8;
+        trace("BNE " + value.toString());
+        trace("status " + this.statusRegister.zero.toString());
+        if (!this.statusRegister.zero) {
+          this.pc += value;
+          this.cyclesRemaining = 2;
+        } else {
+          this.cyclesRemaining = 1;
+        }
         break;
       }
       case 0x4c: {

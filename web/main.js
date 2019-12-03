@@ -12,18 +12,7 @@ const result = dasm(
   ORG $F000
 Reset
 StartOfFrame
-  ; Start of vertical blank processing
-  lda #0
-  sta VBLANK
-  lda #2
-  sta VSYNC
-
-  ; 3 scanlines of VSYNC signal...
-  sta WSYNC
-  sta WSYNC
-  sta WSYNC
-  lda #0
-  sta VSYNC
+  VERTICAL_SYNC
 
   ; 37 scanlines of vertical blank...
   REPEAT 37
@@ -76,7 +65,7 @@ const run = async () => {
     }
   };
 
-  const module = await loader.instantiate(fetch("../build/untouched.wasm"));
+  const module = await loader.instantiateStreaming(fetch("../build/untouched.wasm"));
   const memory = module.Memory.wrap(module.consoleMemory);
   const tia = module.TIA.wrap(module.tia);
   const buffer = module.__getArrayView(memory.buffer);

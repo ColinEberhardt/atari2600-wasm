@@ -80,7 +80,111 @@ describe("status register", () => {
     cpu.tick(2);
     expect(cpu.accumulator).toBe(47);
     expect(statusRegister.carry).toBe(0);
-    // expect(statusRegister.negative).toBe(0);
+  });
+});
+
+describe("ADC", () => {
+  test("Immediate", () => {
+    cpu.accumulator = 25;
+    loadROM("adc #$04", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(29);
+    expect(cpu.cyclesRemaining).toBe(1);
+  });
+
+  test("Zero Page", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[32] = 10;
+    cpu.accumulator = 25;
+    loadROM("adc $20", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(2);
+  });
+
+  test("Zero Page, X", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[37] = 10;
+    cpu.accumulator = 25;
+    cpu.xRegister = 5;
+    loadROM("adc $20,X", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(3);
+  });
+
+  test("Absolute", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0xf56] = 10;
+    cpu.accumulator = 25;
+    loadROM("adc $0f56", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(3);
+  });
+
+  test("Absolute, X", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0xf5b] = 10;
+    cpu.xRegister = 5;
+    cpu.accumulator = 25;
+    loadROM("adc $0f56,X", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(4);
+  });
+
+  test("Absolute, X - Zero Page", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x009] = 10;
+    cpu.xRegister = 5;
+    cpu.accumulator = 25;
+    loadROM("adc $004,X", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(3);
+  });
+
+  test("Absolute, X - Page crossed", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0xa10] = 10;
+    cpu.xRegister = 3;
+    cpu.accumulator = 25;
+    loadROM("adc $a0d,X", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(4);
+  });
+
+  test("Absolute, Y - Zero Page", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x009] = 10;
+    cpu.yRegister = 5;
+    cpu.accumulator = 25;
+    loadROM("adc $004,Y", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(35);
+    expect(cpu.cyclesRemaining).toBe(3);
+  });
+});
+
+describe("BNE", () => {
+  // http://www.obelisk.me.uk/6502/reference.html#BNE
+  test("branching", () => {
+    cpu.statusRegister.zero = false;
+    loadROM(
+      `
+    ldy #02
+Loop
+    dey
+    bne Loop`,
+      wasmModule
+    );
+    expect(cpu.pc).toEqual(4096);
+    cpu.tick(6);
+    expect(cpu.pc).toEqual(4098);
+    cpu.tick(4);
+    expect(cpu.pc).toEqual(4101);
   });
 });
 
