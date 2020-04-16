@@ -1,7 +1,7 @@
 import Memory from "./memory";
 
-//http://www.obelisk.me.uk/6502/reference.html
-//http://nparker.llx.com/a2/opcodes.html
+// full instruction set: http://www.obelisk.me.uk/6502/reference.html
+// patterns: http://nparker.llx.com/a2/opcodes.html
 
 export class StatusRegister {
   zero: bool;
@@ -57,181 +57,182 @@ export class CPU {
     }
 
     const opcode: u8 = this.memory.read(this.pc++);
+    const aaa = (opcode & 0b11100000) >> 5;
+    const bbb = (opcode & 0b00011100) >> 2;
+    const cc = (opcode & 0b00000011);
 
-    trace(opcode.toString());
+    trace("opcode " + opcode.toString());
 
-    switch (opcode) {
-      case 0x69: {
-        // ADC Immediate
-        const value: u8 = this.memory.read(this.pc++);
-        trace("ADC " + value.toString());
-        this.accumulator += value;
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0x65: {
-        // ADC Zero Page
-        const addr: u8 = this.memory.read(this.pc++);
-        const value = this.memory.read(addr);
-        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
-        this.accumulator += value;
-        this.cyclesRemaining = 2;
-        break;
-      }
-      case 0x75: {
-        // ADC Zero Page, X
-        const addr: u8 = this.memory.read(this.pc++);
-        const value = this.memory.read(addr + this.xRegister);
-        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
-        this.accumulator += value;
-        this.cyclesRemaining = 3;
-        break;
-      }
-      case 0x6d: {
-        // ADC Absolute
-        const addr: u32 =
-          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-        const value = this.memory.read(addr);
-        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
-        this.accumulator += value as u8;
-        this.cyclesRemaining = 3;
-        break;
-      }
-      case 0x7d: {
-        // ADC Absolute, X
-        const addr: u32 =
-          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-        const value = this.memory.read(addr + this.xRegister);
-        trace("ADC ax addr=" + addr.toString() + ", value=" + value.toString());
-        this.accumulator += value as u8;
-        this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
-        break;
-      }
-      case 0x79: {
-        // ADC Absolute, Y
-        const addr: u32 =
-          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-        const value = this.memory.read(addr + this.yRegister);
-        trace("ADC addr=" + addr.toString() + ", value=" + value.toString());
-        this.accumulator += value as u8;
-        this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
-        break;
-      }
-      case 0xa9: {
-        // LDA Immediate
-        const value: u8 = this.memory.read(this.pc++);
-        trace("LDA " + value.toString());
-        this.accumulator = value;
-        this.statusRegister.setStatus(value);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0x4a: {
-        // LSR Accumulator
-        trace("LSR");
-        const oldValue = this.accumulator;
-        this.accumulator = this.accumulator >> 1;
-        this.statusRegister.setStatusWithCarry(oldValue, this.accumulator);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0x85: {
-        // STA Zero page
-        const address: u8 = this.memory.read(this.pc++);
-        trace("STA " + address.toString());
-        this.memory.write(address, this.accumulator);
-        this.cyclesRemaining = 2;
-        break;
-      }
-      case 0x84: {
-        // STY Zero page
-        const address: u8 = this.memory.read(this.pc++);
-        trace("STY " + address.toString());
-        this.memory.write(address, this.yRegister);
-        this.cyclesRemaining = 2;
-        break;
-      }
-      case 0x86: {
-        // STX Zero page
-        const address: u8 = this.memory.read(this.pc++);
-        trace("STX " + address.toString());
-        this.memory.write(address, this.xRegister);
-        this.cyclesRemaining = 2;
-        break;
-      }
-      case 0xa2: {
-        // LDX Immediate
-        const value: u8 = this.memory.read(this.pc++);
-        trace("LDX " + value.toString());
-        this.xRegister = value;
-        this.statusRegister.setStatus(value);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0xa0: {
-        // LDY Immediate
-        const value: u8 = this.memory.read(this.pc++);
-        trace("LDY " + value.toString());
-        this.yRegister = value;
-        this.statusRegister.setStatus(value);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0xe8: {
-        // INX
-        trace("INX");
-        this.xRegister = this.xRegister + 1;
-        this.statusRegister.setStatus(this.xRegister);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0xc8: {
-        // INY
-        trace("INY");
-        this.yRegister = this.yRegister + 1;
-        this.statusRegister.setStatus(this.xRegister);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0xea: {
-        // NOP
-        trace("NOP");
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0x88: {
-        // DEY
-        trace("DEY");
-        this.yRegister = this.yRegister - 1;
-        this.statusRegister.setStatus(this.yRegister);
-        this.cyclesRemaining = 1;
-        break;
-      }
-      case 0xd0: {
-        // BNE
-        const value: i8 = this.memory.read(this.pc++) as i8;
-        trace("BNE " + value.toString());
-        trace("status " + this.statusRegister.zero.toString());
-        if (!this.statusRegister.zero) {
-          this.pc += value;
+    if (cc === 1 && aaa === 3) {
+      let value: u32 = 0, addr: u32;
+      switch (bbb) {
+        case 0b000: break; // 000	(zero page,X)
+        case 0b001: // 001	zero page
+          trace("zeropage");
+          addr = this.memory.read(this.pc++);
+          value = this.memory.read(addr);
           this.cyclesRemaining = 2;
-        } else {
+          break; 
+        case 0b010: // 001	#immediate
+          trace("immediate");
+          value = this.memory.read(this.pc++);
           this.cyclesRemaining = 1;
+          break;
+        case 0b011: // 011	absolute
+          trace("absolute");
+          addr = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          value = this.memory.read(addr);
+          this.cyclesRemaining = 3;
+          break;
+        case 0b100: // (zero page),Y
+          trace("zeropage Y");
+          addr = this.memory.read(this.pc++);
+          value = this.memory.read(addr + this.yRegister);
+          this.cyclesRemaining = 3;
+          break;
+        case 0b101: // (zero page),X
+          trace("zeropage X");
+          addr = this.memory.read(this.pc++);
+          value = this.memory.read(addr + this.xRegister);
+          this.cyclesRemaining = 3;
+          break;
+        case 0b110: // 110	absolute,Y
+          trace("absolute Y");
+          addr =
+            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          value = this.memory.read(addr + this.yRegister);
+          this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
+          break;
+        case 0b111: // 111	absolute,X
+          trace("absolute X");
+          addr =
+            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          value = this.memory.read(addr + this.xRegister);
+          this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
+          break;
+      }
+
+      trace("ADC");
+      this.accumulator += value as u8;
+    } else {
+
+      switch (opcode) {
+        case 0xa9: {
+          // LDA Immediate
+          const value: u8 = this.memory.read(this.pc++);
+          trace("LDA " + value.toString());
+          this.accumulator = value;
+          this.statusRegister.setStatus(value);
+          this.cyclesRemaining = 1;
+          break;
         }
-        break;
+        case 0x4a: {
+          // LSR Accumulator
+          trace("LSR");
+          const oldValue = this.accumulator;
+          this.accumulator = this.accumulator >> 1;
+          this.statusRegister.setStatusWithCarry(oldValue, this.accumulator);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0x85: {
+          // STA Zero page
+          const address: u8 = this.memory.read(this.pc++);
+          trace("STA " + address.toString());
+          this.memory.write(address, this.accumulator);
+          this.cyclesRemaining = 2;
+          break;
+        }
+        case 0x84: {
+          // STY Zero page
+          const address: u8 = this.memory.read(this.pc++);
+          trace("STY " + address.toString());
+          this.memory.write(address, this.yRegister);
+          this.cyclesRemaining = 2;
+          break;
+        }
+        case 0x86: {
+          // STX Zero page
+          const address: u8 = this.memory.read(this.pc++);
+          trace("STX " + address.toString());
+          this.memory.write(address, this.xRegister);
+          this.cyclesRemaining = 2;
+          break;
+        }
+        case 0xa2: {
+          // LDX Immediate
+          const value: u8 = this.memory.read(this.pc++);
+          trace("LDX " + value.toString());
+          this.xRegister = value;
+          this.statusRegister.setStatus(value);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0xa0: {
+          // LDY Immediate
+          const value: u8 = this.memory.read(this.pc++);
+          trace("LDY " + value.toString());
+          this.yRegister = value;
+          this.statusRegister.setStatus(value);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0xe8: {
+          // INX
+          trace("INX");
+          this.xRegister = this.xRegister + 1;
+          this.statusRegister.setStatus(this.xRegister);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0xc8: {
+          // INY
+          trace("INY");
+          this.yRegister = this.yRegister + 1;
+          this.statusRegister.setStatus(this.xRegister);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0xea: {
+          // NOP
+          trace("NOP");
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0x88: {
+          // DEY
+          trace("DEY");
+          this.yRegister = this.yRegister - 1;
+          this.statusRegister.setStatus(this.yRegister);
+          this.cyclesRemaining = 1;
+          break;
+        }
+        case 0xd0: {
+          // BNE
+          const value: i8 = this.memory.read(this.pc++) as i8;
+          trace("BNE " + value.toString());
+          trace("status " + this.statusRegister.zero.toString());
+          if (!this.statusRegister.zero) {
+            this.pc += value;
+            this.cyclesRemaining = 2;
+          } else {
+            this.cyclesRemaining = 1;
+          }
+          break;
+        }
+        case 0x4c: {
+          // JMP
+          const value: u32 =
+            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          trace("JMP " + value.toString());
+          this.pc = value;
+          this.cyclesRemaining = 2;
+          break;
+        }
+        default:
+          trace("UNKNOWN OPCODE!!! " + opcode.toString());
+          break;
       }
-      case 0x4c: {
-        // JMP
-        const value: u32 =
-          this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-        trace("JMP " + value.toString());
-        this.pc = value;
-        this.cyclesRemaining = 2;
-        break;
-      }
-      default:
-        trace("UNKNOWN OPCODE!!! " + opcode.toString());
-        break;
     }
   }
 }

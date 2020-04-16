@@ -223,6 +223,8 @@ export default class TIA {
     this.strobedWSYNC = false;
   }
 
+  // intercepts all memory write operations to determine whether
+  // any of the special registers have been written to
   memoryWrite(addr: u32): void {
     if (addr == Register.WSYNC) {
       this.cpu.paused = true;
