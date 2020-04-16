@@ -2,11 +2,13 @@ import Memory from "./memory";
 
 // full instruction set: http://www.obelisk.me.uk/6502/reference.html
 // patterns: http://nparker.llx.com/a2/opcodes.html
+// overflow flag explained: http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
 
 export class StatusRegister {
   zero: bool;
   negative: bool;
   carry: bool;
+  overflow: bool;
 
   constructor() {}
 
@@ -19,6 +21,28 @@ export class StatusRegister {
     this.setStatus(newValue);
     this.carry = (oldValue & 0b00000001) as bool;
   }
+}
+
+// encodes the aaa values for the cc = 01 instructions
+enum CC01_Instruction {
+  ORA,
+  AND,
+  EOR,
+  ADC,
+  STA,
+  LDA,
+  CMP,
+  SBC,
+}
+
+enum AddressMode {
+  ZeroPage = 1,
+  Immediate,
+  Absolute,
+  ZeroPageY,
+  ZeroPageX,
+  AbsoluteY,
+  AbsoluteX,
 }
 
 export class CPU {
@@ -59,52 +83,48 @@ export class CPU {
     const opcode: u8 = this.memory.read(this.pc++);
     const aaa = (opcode & 0b11100000) >> 5;
     const bbb = (opcode & 0b00011100) >> 2;
-    const cc = (opcode & 0b00000011);
+    const cc = opcode & 0b00000011;
 
     trace("opcode " + opcode.toString());
 
-    if (cc === 1 && aaa === 3) {
-      let value: u32 = 0, addr: u32;
+    if (cc === 1 && (aaa === 0b011 || aaa === 0b000)) {
+      let value: u32 = 0,
+        addr: u32;
       switch (bbb) {
-        case 0b000: break; // 000	(zero page,X)
-        case 0b001: // 001	zero page
-          trace("zeropage");
+        case 0b000:
+          break; // 000	(zero page,X)
+        case AddressMode.ZeroPage:
           addr = this.memory.read(this.pc++);
           value = this.memory.read(addr);
           this.cyclesRemaining = 2;
-          break; 
-        case 0b010: // 001	#immediate
-          trace("immediate");
+          break;
+        case AddressMode.Immediate:
           value = this.memory.read(this.pc++);
           this.cyclesRemaining = 1;
           break;
-        case 0b011: // 011	absolute
-          trace("absolute");
-          addr = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+        case AddressMode.Absolute:
+          addr =
+            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           value = this.memory.read(addr);
           this.cyclesRemaining = 3;
           break;
-        case 0b100: // (zero page),Y
-          trace("zeropage Y");
+        case AddressMode.ZeroPageY:
           addr = this.memory.read(this.pc++);
           value = this.memory.read(addr + this.yRegister);
           this.cyclesRemaining = 3;
           break;
-        case 0b101: // (zero page),X
-          trace("zeropage X");
+        case AddressMode.ZeroPageX:
           addr = this.memory.read(this.pc++);
           value = this.memory.read(addr + this.xRegister);
           this.cyclesRemaining = 3;
           break;
-        case 0b110: // 110	absolute,Y
-          trace("absolute Y");
+        case AddressMode.AbsoluteY:
           addr =
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           value = this.memory.read(addr + this.yRegister);
           this.cyclesRemaining = 3 + (addr > 255 ? 1 : 0);
           break;
-        case 0b111: // 111	absolute,X
-          trace("absolute X");
+        case AddressMode.AbsoluteX:
           addr =
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           value = this.memory.read(addr + this.xRegister);
@@ -113,9 +133,24 @@ export class CPU {
       }
 
       trace("ADC");
-      this.accumulator += value as u8;
-    } else {
 
+      switch (aaa) {
+        case CC01_Instruction.ORA:
+          break;
+        case CC01_Instruction.ADC:
+          const sum: u32 =
+            this.accumulator + value + (this.statusRegister.carry ? 1 : 0);
+          this.statusRegister.carry = sum > 0xff;
+          // see: http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+          this.statusRegister.overflow =
+            (~(this.accumulator ^ value) & (this.accumulator ^ sum) & 0x80) ===
+            0x80;
+          this.accumulator = sum as u8;
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+      }
+    } else {
       switch (opcode) {
         case 0xa9: {
           // LDA Immediate

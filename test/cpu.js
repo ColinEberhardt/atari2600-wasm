@@ -81,6 +81,72 @@ describe("status register", () => {
     expect(cpu.accumulator).toBe(47);
     expect(statusRegister.carry).toBe(0);
   });
+
+  // test cases from http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+  describe("overflow", () => {
+
+    const add = (a, b) => {
+      cpu.accumulator = a;
+      loadROM("adc #$" + b.toString(16), wasmModule);
+      cpu.tick();
+    }
+
+    test("One", () => {
+      add(0x50, 0x10);
+      expect(cpu.accumulator).toBe(0x60);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(0);
+    });
+
+    test("Two", () => {
+      add(0x50, 0x50);
+      expect(cpu.accumulator).toBe(0xa0);
+      expect(statusRegister.overflow).toBe(1);
+      expect(statusRegister.carry).toBe(0);
+    });
+
+    test("Three", () => {
+      add(0x50, 0x90);
+      expect(cpu.accumulator).toBe(0xe0);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(0);
+    });
+
+    test("Four", () => {
+      add(0x50, 0xd0);
+      expect(cpu.accumulator).toBe(0x20);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(1);
+    });
+
+    test("Five", () => {
+      add(0xd0, 0x10);
+      expect(cpu.accumulator).toBe(0xe0);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(0);
+    });
+
+    test("Six", () => {
+      add(0xd0, 0x50);
+      expect(cpu.accumulator).toBe(0x20);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(1);
+    });
+
+    test("Seven", () => {
+      add(0xd0, 0x90);
+      expect(cpu.accumulator).toBe(0x60);
+      expect(statusRegister.overflow).toBe(1);
+      expect(statusRegister.carry).toBe(1);
+    });
+
+    test("Eight", () => {
+      add(0xd0, 0xd0);
+      expect(cpu.accumulator).toBe(0xa0);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.carry).toBe(1);
+    });
+  })
 });
 
 describe("ADC", () => {
