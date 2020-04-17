@@ -87,7 +87,7 @@ export class CPU {
 
     trace("opcode " + opcode.toString());
 
-    if (cc === 1 && (aaa === 0b011 || aaa === 0b000)) {
+    if (cc === 1 && (aaa === 0b011 || aaa === 0b000 || aaa === 0b101)) {
       let value: u32 = 0,
         addr: u32;
       switch (bbb) {
@@ -136,6 +136,10 @@ export class CPU {
 
       switch (aaa) {
         case CC01_Instruction.ORA:
+          this.accumulator = this.accumulator | (value as u8);
+          break;
+        case CC01_Instruction.LDA:
+          this.accumulator = value as u8;
           break;
         case CC01_Instruction.ADC:
           const sum: u32 =
@@ -146,21 +150,14 @@ export class CPU {
             (~(this.accumulator ^ value) & (this.accumulator ^ sum) & 0x80) ===
             0x80;
           this.accumulator = sum as u8;
-          this.statusRegister.zero = this.accumulator == 0;
-          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
       }
+
+      this.statusRegister.zero = this.accumulator == 0;
+      this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+
     } else {
       switch (opcode) {
-        case 0xa9: {
-          // LDA Immediate
-          const value: u8 = this.memory.read(this.pc++);
-          trace("LDA " + value.toString());
-          this.accumulator = value;
-          this.statusRegister.setStatus(value);
-          this.cyclesRemaining = 1;
-          break;
-        }
         case 0x4a: {
           // LSR Accumulator
           trace("LSR");
