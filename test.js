@@ -16,9 +16,9 @@ const { loadROM, getMemoryBuffer } = require("./test/common");
 
 	// memBuffer[0x100] = 10;
 	// cpu.xRegister = 100;
-	// cpu.accumulator = 25;
-	loadROM("lda $09", wasmModule);
-		
+	cpu.accumulator = 25;
+	loadROM("sta $09", wasmModule);
+
 	cpu.tick();
-	console.log(cpu.accumulator);
+	console.log(memBuffer[0x09]);
 })();

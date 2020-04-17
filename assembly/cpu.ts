@@ -87,13 +87,14 @@ export class CPU {
 
     trace("opcode " + opcode.toString());
 
-    if (cc === 1 && (aaa === 0b011 || aaa === 0b000 || aaa === 0b101)) {
+    if (cc === 1) {
       let value: u32 = 0,
-        addr: u32;
+        addr: u32 = 0;
       switch (bbb) {
         case 0b000:
           break; // 000	(zero page,X)
         case AddressMode.ZeroPage:
+          trace("zero page");
           addr = this.memory.read(this.pc++);
           value = this.memory.read(addr);
           this.cyclesRemaining = 2;
@@ -132,14 +133,29 @@ export class CPU {
           break;
       }
 
-      trace("ADC");
-
       switch (aaa) {
         case CC01_Instruction.ORA:
           this.accumulator = this.accumulator | (value as u8);
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.AND:
+          this.accumulator = this.accumulator & (value as u8);
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.EOR:
+          this.accumulator = this.accumulator ^ (value as u8);
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
         case CC01_Instruction.LDA:
           this.accumulator = value as u8;
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.STA:
+          this.memory.write(addr, this.accumulator);
           break;
         case CC01_Instruction.ADC:
           const sum: u32 =
@@ -150,12 +166,10 @@ export class CPU {
             (~(this.accumulator ^ value) & (this.accumulator ^ sum) & 0x80) ===
             0x80;
           this.accumulator = sum as u8;
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
       }
-
-      this.statusRegister.zero = this.accumulator == 0;
-      this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
-
     } else {
       switch (opcode) {
         case 0x4a: {
@@ -165,14 +179,6 @@ export class CPU {
           this.accumulator = this.accumulator >> 1;
           this.statusRegister.setStatusWithCarry(oldValue, this.accumulator);
           this.cyclesRemaining = 1;
-          break;
-        }
-        case 0x85: {
-          // STA Zero page
-          const address: u8 = this.memory.read(this.pc++);
-          trace("STA " + address.toString());
-          this.memory.write(address, this.accumulator);
-          this.cyclesRemaining = 2;
           break;
         }
         case 0x84: {

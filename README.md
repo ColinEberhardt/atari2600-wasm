@@ -28,7 +28,7 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - from: http://www.obelisk.me.uk/6502/reference.html
 
  - [x] ADC
- - [ ] AND
+ - [x] AND
  - [ ] ASL
  - [ ] BCC
  - [ ] BCS
@@ -50,13 +50,13 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - [ ] DEC
  - [ ] DEX
  - [x] DEY
- - [ ] EOR
+ - [x] EOR
  - [ ] INC
  - [x] INX
  - [x] INY
  - [o] JMP - absolute mode only
  - [ ] JSR
- - [o] LDA - immediate mode only
+ - [x] LDA
  - [o] LDX - immediate mode only
  - [o] LDY - immediate mode only
  - [o] LSR - accumulator mode only
@@ -74,7 +74,7 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - [ ] SEC
  - [ ] SED
  - [ ] SEI
- - [o] STA - zero page only
+ - [x] STA 
  - [o] STX - zero page only
  - [o] STY - zero page only
  - [ ] TAX

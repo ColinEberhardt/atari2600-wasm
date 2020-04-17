@@ -257,12 +257,34 @@ describe("cpu instructions", () => {
     cpu.tick();
     expect(cpu.accumulator).toBe(8);
   });
+  
+  test("STA", () => {
+    cpu.accumulator = 9;
+    loadROM("sta $08", wasmModule);
+    cpu.tick();
+    const memory = getMemoryBuffer(wasmModule);
+    expect(memory[8]).toBe(9);
+  });
 
   test("ORA", () => {
     cpu.accumulator = 0b11000001;
     loadROM("ora #$03", wasmModule);
     cpu.tick();
     expect(cpu.accumulator).toBe(0b11000011);
+  });
+
+  test("AND", () => {
+    cpu.accumulator = 0b11000001;
+    loadROM("and #$03", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(0b00000001);
+  });
+
+  test("EOR", () => {
+    cpu.accumulator = 0b11000001;
+    loadROM("eor #$03", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(0b11000010);
   });
 });
 
@@ -296,19 +318,6 @@ Loop
       cpu.tick();
       expect(cpu.accumulator).toBe(22);
       expect(cpu.cyclesRemaining).toBe(1);
-    });
-  });
-
-  describe("STA", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#STA
-
-    test("Zero page", () => {
-      cpu.accumulator = 9;
-      loadROM("sta $08", wasmModule);
-      cpu.tick();
-      const memory = getMemoryBuffer(wasmModule);
-      expect(memory[8]).toBe(9);
-      expect(cpu.cyclesRemaining).toBe(2);
     });
   });
 
