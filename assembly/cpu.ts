@@ -32,7 +32,7 @@ enum CC01_Instruction {
   STA,
   LDA,
   CMP,
-  SBC,
+  SBC
 }
 
 enum AddressMode {
@@ -42,7 +42,7 @@ enum AddressMode {
   ZeroPageY,
   ZeroPageX,
   AbsoluteY,
-  AbsoluteX,
+  AbsoluteX
 }
 
 export class CPU {
@@ -174,6 +174,19 @@ export class CPU {
         case CC01_Instruction.CMP:
           this.statusRegister.carry = this.accumulator >= value;
           this.statusRegister.zero = value === this.accumulator;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.SBC:
+          const diff: u32 =
+            this.accumulator -
+            (value as u8) -
+            (this.statusRegister.carry ? 0 : 1);
+          this.statusRegister.carry = diff > 0xff;
+          this.statusRegister.overflow =
+            (~(this.accumulator ^ value) & (this.accumulator ^ diff) & 0x80) ===
+            0x80;
+          this.accumulator = diff as u8;
+          this.statusRegister.zero = this.accumulator == 0;
           this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
       }

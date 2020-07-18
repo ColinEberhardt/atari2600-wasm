@@ -295,6 +295,14 @@ describe("cpu instructions", () => {
     expect(statusRegister.zero).toBe(0);
     expect(statusRegister.negative).toBe(0);
   });
+
+  test("SBC", () => {
+    cpu.accumulator = 5;
+    cpu.statusRegister.carry = 0;
+    loadROM("sbc #$02", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(2);
+  });
 });
 
 describe("legacy tests", () => {

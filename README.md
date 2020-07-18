@@ -70,7 +70,7 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - [ ] ROR
  - [ ] RTI
  - [ ] RTS
- - [ ] SBC
+ - [x] SBC
  - [ ] SEC
  - [ ] SED
  - [ ] SEI
