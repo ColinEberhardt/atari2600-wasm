@@ -87,6 +87,8 @@ export class CPU {
 
     trace("opcode " + opcode.toString());
 
+    // following the instruction patterns detailed here:
+    // http://nparker.llx.com/a2/opcodes.html
     if (cc === 1) {
       let value: u32 = 0,
         addr: u32 = 0;
@@ -149,14 +151,6 @@ export class CPU {
           this.statusRegister.zero = this.accumulator == 0;
           this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
-        case CC01_Instruction.LDA:
-          this.accumulator = value as u8;
-          this.statusRegister.zero = this.accumulator == 0;
-          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
-          break;
-        case CC01_Instruction.STA:
-          this.memory.write(addr, this.accumulator);
-          break;
         case CC01_Instruction.ADC:
           const sum: u32 =
             this.accumulator + value + (this.statusRegister.carry ? 1 : 0);
@@ -167,6 +161,19 @@ export class CPU {
             0x80;
           this.accumulator = sum as u8;
           this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.LDA:
+          this.accumulator = value as u8;
+          this.statusRegister.zero = this.accumulator == 0;
+          this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
+          break;
+        case CC01_Instruction.STA:
+          this.memory.write(addr, this.accumulator);
+          break;
+        case CC01_Instruction.CMP:
+          this.statusRegister.carry = this.accumulator >= value;
+          this.statusRegister.zero = value === this.accumulator;
           this.statusRegister.negative = (this.accumulator & 0b10000000) != 0;
           break;
       }

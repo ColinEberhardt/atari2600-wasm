@@ -21,8 +21,8 @@ let wasmModule, cpu, statusRegister;
 beforeEach(() => {
   wasmModule = loader.instantiateSync(compiled, {
     env: {
-      trace: () => {},
-    },
+      trace: () => {}
+    }
   });
   cpu = wasmModule.CPU.wrap(wasmModule.cpu);
   statusRegister = wasmModule.StatusRegister.wrap(cpu.statusRegister);
@@ -257,7 +257,7 @@ describe("cpu instructions", () => {
     cpu.tick();
     expect(cpu.accumulator).toBe(8);
   });
-  
+
   test("STA", () => {
     cpu.accumulator = 9;
     loadROM("sta $08", wasmModule);
@@ -285,6 +285,15 @@ describe("cpu instructions", () => {
     loadROM("eor #$03", wasmModule);
     cpu.tick();
     expect(cpu.accumulator).toBe(0b11000010);
+  });
+
+  test("CMP", () => {
+    cpu.accumulator = 5;
+    loadROM("cmp #$02", wasmModule);
+    cpu.tick();
+    expect(statusRegister.carry).toBe(1);
+    expect(statusRegister.zero).toBe(0);
+    expect(statusRegister.negative).toBe(0);
   });
 });
 

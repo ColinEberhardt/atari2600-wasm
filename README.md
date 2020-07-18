@@ -44,7 +44,7 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - [ ] CLD
  - [ ] CLI
  - [ ] CLV
- - [ ] CMP
+ - [x] CMP
  - [ ] CPX
  - [ ] CPY
  - [ ] DEC
@@ -61,7 +61,7 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
  - [o] LDY - immediate mode only
  - [o] LSR - accumulator mode only
  - [x] NOP
- - [ ] ORA
+ - [x] ORA
  - [ ] PHA
  - [ ] PHP
  - [ ] PLA
