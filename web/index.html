@@ -1,23 +1,61 @@
 <html>
   <head>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
     <style>
+      .container-fluid, .navbar {
+        margin-bottom: 50px;
+      }
+      textarea {
+        width: 100%;
+        font-family: monospace;
+      }
       canvas {
         image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-crisp-edges;
         image-rendering: pixelated;
       }
     </style>
+
+  
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/codemirror@5.45.0/theme/abcdef.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/codemirror@5.45.0/lib/codemirror.css"
+    />
   </head>
-  <body>
-    <canvas
-      id="canvas"
-      width="160"
-      height="192"
-      style="transform: scale(2); transform-origin: top left"
-    ></canvas>
+  <body class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+      <div>
+        <button id="run" class="btn btn-outline-success">
+          Run
+        </button>
+      </div>
+    </nav>
+    <div class="row">
+      <div class="col-md-7">
+        <textarea rows="20" id="code"> </textarea>
+      </div>
+      <div class="col-md-5">
+        <canvas
+          id="canvas"
+          width="160"
+          height="192"
+          style="transform: scale(2); transform-origin: top left;"
+        ></canvas>
+      </div>
+    </div>
+
     <script>
       // TODO: find a better way to 'stub' unused imports from DASM
-      fs = {}, path = {}, crypto = {};
+      (fs = {}), (path = {}), (crypto = {});
     </script>
     <script src="bundle.js"></script>
   </body>

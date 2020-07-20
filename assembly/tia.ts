@@ -205,6 +205,14 @@ const VSTART = VBLANK + VSYNC;
 const VEND = SCANLINES - OVERSCAN;
 const VSCAN = VEND - VSTART;
 
+const bitSet = (byte: u8, pattern: u8): bool => (byte & pattern) === pattern;
+
+const rolloutRight = (byte: u8, offset: u8): bool =>
+  bitSet(byte >> offset, 0b00000001);
+
+const rolloutLeft = (byte: u8, offset: u8): bool =>
+  bitSet(byte << offset, 0b10000000);
+
 export default class TIA {
   memory: Memory;
   x: u8;
@@ -237,6 +245,23 @@ export default class TIA {
     }
   }
 
+  isPlayfieldSet(playfieldPixel: u8): bool {
+    if (playfieldPixel < 4) {
+      if (rolloutRight(this.memory.read(Register.PF0), playfieldPixel + 4)) {
+        return true;
+      }
+    } else if (playfieldPixel < 12) {
+      if (rolloutLeft(this.memory.read(Register.PF1), playfieldPixel - 4)) {
+        return true;
+      }
+    } else if (playfieldPixel < 20) {
+      if (rolloutRight(this.memory.read(Register.PF2), playfieldPixel - 12)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   tickOnce(): void {
     if (this.clock % 3 === 0) {
       cpu.tick();
@@ -258,9 +283,24 @@ export default class TIA {
     const vPos: u32 = this.clock / COLORCLOCKS;
     const hPos: u32 = this.clock % COLORCLOCKS;
     if (vPos >= VSTART && vPos < VEND && hPos >= HSTART && hPos < HEND) {
-      const pos = ((vPos - VSTART) * HSCAN + (hPos - HSTART)) * 4;
-      const color = PALETTE_NTSC[this.memory.read(Register.COLUBK) / 2];
+      // background colour
+      let colorIndex = this.memory.read(Register.COLUBK);
 
+      // playfield graphics
+      let playfieldPixel: u8 = ((hPos - HSTART) / 4) as u8;
+      if (playfieldPixel >= 20) {
+        if (bitSet(this.memory.read(Register.CTRLPF), 0b00000001)) {
+          playfieldPixel = 39 - playfieldPixel;
+        } else {
+          playfieldPixel = playfieldPixel - 20;
+        }
+      }
+      colorIndex = this.isPlayfieldSet(playfieldPixel)
+        ? this.memory.read(Register.COLUPF)
+        : colorIndex;
+
+      const pos = ((vPos - VSTART) * HSCAN + (hPos - HSTART)) * 4;
+      const color = PALETTE_NTSC[colorIndex / 2];
       this.display[pos] = ((color & 0xff0000) >> 16) as u8;
       this.display[pos + 1] = ((color & 0x00ff00) >> 8) as u8;
       this.display[pos + 2] = (color & 0x0000ff) as u8;

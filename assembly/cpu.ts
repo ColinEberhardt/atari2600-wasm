@@ -85,7 +85,7 @@ export class CPU {
     const bbb = (opcode & 0b00011100) >> 2;
     const cc = opcode & 0b00000011;
 
-    trace("opcode " + opcode.toString());
+    // trace("opcode " + opcode.toString());
 
     // following the instruction patterns detailed here:
     // http://nparker.llx.com/a2/opcodes.html
@@ -96,7 +96,6 @@ export class CPU {
         case 0b000:
           break; // 000	(zero page,X)
         case AddressMode.ZeroPage:
-          trace("zero page");
           addr = this.memory.read(this.pc++);
           value = this.memory.read(addr);
           this.cyclesRemaining = 2;
