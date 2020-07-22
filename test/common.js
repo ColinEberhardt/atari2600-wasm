@@ -15,12 +15,14 @@ const loadROM = (sourcecode, wasmModule) => {
     processor 6502
 		include "vcs.h"
 		include "macro.h"
-    org  $f000
+    org  $1000
     
     ${sourcecode}
   `,
     { format: 3, machine: "atari2600" }
   );
+
+  console.log("rom", result.data.length);
 
   const buffer = getMemoryBuffer(wasmModule);
   result.data.forEach((byte, index) => {

@@ -47,6 +47,19 @@ describe("General operations", () => {
   });
 });
 
+describe("DASM features", () => {
+  test("Supports labels", () => {
+      const memory = getMemoryBuffer(wasmModule);
+      cpu.accumulator = 25;
+      loadROM(`
+  lda LABEL1
+LABEL1
+  .byte 05`, wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(5);
+  })
+});
+
 describe("status register", () => {
   test("Sets zero flag", () => {
     loadROM(

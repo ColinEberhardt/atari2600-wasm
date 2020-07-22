@@ -21,7 +21,10 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
   - [x] Session 10: Orgasm
   - [x] Session 11: Colorful colors
   - [x] Session 12: Initialization
-  - [ ] Session 13: Playfield Basics
+  - [x] Session 13: Playfield Basics
+  - [x] Session 14: Playfield Weirdness
+  - [x] Session 15: Playfield Continued
+  - [ ] Session 16: Letting the Assembler Do the Work
 
 ## CPU Instructions
 

@@ -2,33 +2,18 @@ const loader = require("@assemblyscript/loader");
 const dasm = require("dasm").default;
 
 const code = `
+
   processor 6502
   include "vcs.h"
   include "macro.h"
 
-  org  $f000
+  org  $1000
 
-; Now we're going to drive the TV signal properly.
-; Assuming NTSC standards, we need the following:
-; - 3 scanlines of VSYNC
-; - 37 blank lines
-; - 192 visible scanlines
-; - 30 blank lines
+  
+Start  
 
-; We'll use the VSYNC register to generate the VSYNC signal,
-; and the VBLANK register to force a blank screen above
-; and below the visible frame (it'll look letterboxed on
-; the emulator, but not on a real TV)
-
-; Let's define a variable to hold the starting color
-; at memory address $81
-BGColor  equ $81
-
-; The CLEAN_START macro zeroes RAM and registers
-Start  CLEAN_START
-
-  lda #$98
-  sta COLUPF 
+  lda PFBitmap5
+  sta COLUPF
 
   lda #%10010101
   sta PF0
@@ -84,10 +69,14 @@ NextFrame
   
 ; Go back and do another frame
   jmp NextFrame
-  
-  org $fffc
+
+PFBitmap5
+  .byte 92
+
+  org $1ffc
   .word Start
   .word Start
+
 
 `;
 
