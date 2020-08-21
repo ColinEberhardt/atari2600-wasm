@@ -2,17 +2,6 @@ const fs = require("fs");
 const loader = require("@assemblyscript/loader");
 const { loadROM, getMemoryBuffer } = require("./common");
 
-/*
-Immediate ADC #$44 $69 2 2
-Zero Page ADC $44 $65 2 3
-Zero Page,X ADC $44,X $75 2 4
-Absolute ADC $4400 $6D 3 4
-Absolute,X ADC $4400,X $7D 3 4+
-Absolute,Y ADC $4400,Y $79 3 4+
-Indirect,X ADC ($44,X) $61 2 6
-Indirect,Y ADC ($44),Y $71 2 5+
-*/
-
 const compiled = new WebAssembly.Module(
   fs.readFileSync(__dirname + "/../build/untouched.wasm")
 );
@@ -45,134 +34,7 @@ describe("General operations", () => {
     cpu.tick();
     expect(cpu.accumulator).toBe(8);
   });
-});
 
-describe("DASM features", () => {
-  test("Supports labels", () => {
-      const memory = getMemoryBuffer(wasmModule);
-      cpu.accumulator = 25;
-      loadROM(`
-  lda LABEL1
-LABEL1
-  .byte 05`, wasmModule);
-      cpu.tick();
-      expect(cpu.accumulator).toBe(5);
-  })
-});
-
-describe("status register", () => {
-  test("Sets zero flag", () => {
-    loadROM(
-      `lda #00
-      lda #05`,
-      wasmModule
-    );
-    cpu.tick();
-    expect(cpu.accumulator).toBe(0);
-    expect(statusRegister.zero).toBe(1);
-    cpu.tick(2);
-    expect(cpu.accumulator).toBe(5);
-    expect(statusRegister.zero).toBe(0);
-  });
-
-  test("Sets negative flag", () => {
-    loadROM(
-      `lda #189
-      lda #05`,
-      wasmModule
-    );
-    cpu.tick();
-    expect(cpu.accumulator).toBe(189);
-    expect(statusRegister.negative).toBe(1);
-    cpu.tick(2);
-    expect(cpu.accumulator).toBe(5);
-    expect(statusRegister.negative).toBe(0);
-  });
-
-  test("Sets carry", () => {
-    loadROM(
-      `lda #189 ; 1011 1101
-      lsr
-      lsr`,
-      wasmModule
-    );
-    cpu.tick(2);
-    expect(cpu.accumulator).toBe(189);
-    cpu.tick(2);
-    expect(cpu.accumulator).toBe(94);
-    expect(statusRegister.carry).toBe(1);
-    cpu.tick(2);
-    expect(cpu.accumulator).toBe(47);
-    expect(statusRegister.carry).toBe(0);
-  });
-
-  // test cases from http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-  describe("overflow", () => {
-    const add = (a, b) => {
-      cpu.accumulator = a;
-      loadROM("adc #$" + b.toString(16), wasmModule);
-      cpu.tick();
-    };
-
-    test("One", () => {
-      add(0x50, 0x10);
-      expect(cpu.accumulator).toBe(0x60);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(0);
-    });
-
-    test("Two", () => {
-      add(0x50, 0x50);
-      expect(cpu.accumulator).toBe(0xa0);
-      expect(statusRegister.overflow).toBe(1);
-      expect(statusRegister.carry).toBe(0);
-    });
-
-    test("Three", () => {
-      add(0x50, 0x90);
-      expect(cpu.accumulator).toBe(0xe0);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(0);
-    });
-
-    test("Four", () => {
-      add(0x50, 0xd0);
-      expect(cpu.accumulator).toBe(0x20);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(1);
-    });
-
-    test("Five", () => {
-      add(0xd0, 0x10);
-      expect(cpu.accumulator).toBe(0xe0);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(0);
-    });
-
-    test("Six", () => {
-      add(0xd0, 0x50);
-      expect(cpu.accumulator).toBe(0x20);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(1);
-    });
-
-    test("Seven", () => {
-      add(0xd0, 0x90);
-      expect(cpu.accumulator).toBe(0x60);
-      expect(statusRegister.overflow).toBe(1);
-      expect(statusRegister.carry).toBe(1);
-    });
-
-    test("Eight", () => {
-      add(0xd0, 0xd0);
-      expect(cpu.accumulator).toBe(0xa0);
-      expect(statusRegister.overflow).toBe(0);
-      expect(statusRegister.carry).toBe(1);
-    });
-  });
-});
-
-describe("cpu instructions", () => {
   describe("Addressing modes", () => {
     test("Immediate", () => {
       cpu.accumulator = 25;
@@ -221,7 +83,7 @@ describe("cpu instructions", () => {
       loadROM("adc $0f56,X", wasmModule);
       cpu.tick();
       expect(cpu.accumulator).toBe(35);
-      expect(cpu.cyclesRemaining).toBe(4);
+      expect(cpu.cyclesRemaining).toBe(3);
     });
 
     test("Absolute, X - Zero Page", () => {
@@ -237,10 +99,10 @@ describe("cpu instructions", () => {
 
     test("Absolute, X - Page crossed", () => {
       const memory = getMemoryBuffer(wasmModule);
-      memory[0xa10] = 10;
-      cpu.xRegister = 3;
+      memory[0xa02] = 10;
+      cpu.xRegister = 0x0a;
       cpu.accumulator = 25;
-      loadROM("adc $a0d,X", wasmModule);
+      loadROM("adc $9f8,X", wasmModule);
       cpu.tick();
       expect(cpu.accumulator).toBe(35);
       expect(cpu.cyclesRemaining).toBe(4);
@@ -257,33 +119,79 @@ describe("cpu instructions", () => {
       expect(cpu.cyclesRemaining).toBe(3);
     });
   });
+});
 
+// test cases from http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+describe("overflow", () => {
+  const add = (a, b) => {
+    cpu.accumulator = a;
+    loadROM("adc #$" + b.toString(16), wasmModule);
+    cpu.tick();
+  };
+
+  test("One", () => {
+    add(0x50, 0x10);
+    expect(cpu.accumulator).toBe(0x60);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(0);
+  });
+
+  test("Two", () => {
+    add(0x50, 0x50);
+    expect(cpu.accumulator).toBe(0xa0);
+    expect(statusRegister.overflow).toBe(1);
+    expect(statusRegister.carry).toBe(0);
+  });
+
+  test("Three", () => {
+    add(0x50, 0x90);
+    expect(cpu.accumulator).toBe(0xe0);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(0);
+  });
+
+  test("Four", () => {
+    add(0x50, 0xd0);
+    expect(cpu.accumulator).toBe(0x20);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(1);
+  });
+
+  test("Five", () => {
+    add(0xd0, 0x10);
+    expect(cpu.accumulator).toBe(0xe0);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(0);
+  });
+
+  test("Six", () => {
+    add(0xd0, 0x50);
+    expect(cpu.accumulator).toBe(0x20);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(1);
+  });
+
+  test("Seven", () => {
+    add(0xd0, 0x90);
+    expect(cpu.accumulator).toBe(0x60);
+    expect(statusRegister.overflow).toBe(1);
+    expect(statusRegister.carry).toBe(1);
+  });
+
+  test("Eight", () => {
+    add(0xd0, 0xd0);
+    expect(cpu.accumulator).toBe(0xa0);
+    expect(statusRegister.overflow).toBe(0);
+    expect(statusRegister.carry).toBe(1);
+  });
+});
+
+describe("cpu instructions", () => {
   test("ADC", () => {
     cpu.accumulator = 25;
     loadROM("adc #$04", wasmModule);
     cpu.tick();
     expect(cpu.accumulator).toBe(29);
-  });
-
-  test("LDA", () => {
-    loadROM("lda #$08", wasmModule);
-    cpu.tick();
-    expect(cpu.accumulator).toBe(8);
-  });
-
-  test("STA", () => {
-    cpu.accumulator = 9;
-    loadROM("sta $08", wasmModule);
-    cpu.tick();
-    const memory = getMemoryBuffer(wasmModule);
-    expect(memory[8]).toBe(9);
-  });
-
-  test("ORA", () => {
-    cpu.accumulator = 0b11000001;
-    loadROM("ora #$03", wasmModule);
-    cpu.tick();
-    expect(cpu.accumulator).toBe(0b11000011);
   });
 
   test("AND", () => {
@@ -293,163 +201,289 @@ describe("cpu instructions", () => {
     expect(cpu.accumulator).toBe(0b00000001);
   });
 
-  test("EOR", () => {
-    cpu.accumulator = 0b11000001;
-    loadROM("eor #$03", wasmModule);
-    cpu.tick();
-    expect(cpu.accumulator).toBe(0b11000010);
+  describe("ASL", () => {
+    test("accumulator", () => {
+      cpu.accumulator = 0b11000001;
+      loadROM("asl", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0b10000010);
+      expect(statusRegister.carry).toBe(1);
+    });
+
+    test("memory", () => {
+      const memory = getMemoryBuffer(wasmModule);
+      memory[0xf56] = 0b01000001;
+      loadROM("asl $0f56", wasmModule);
+      cpu.tick();
+      expect(memory[0xf56]).toBe(0b10000010);
+      expect(statusRegister.carry).toBe(0);
+    });
   });
 
-  test("CMP", () => {
-    cpu.accumulator = 5;
-    loadROM("cmp #$02", wasmModule);
+  describe("BCC", () => {
+    test("branched", () => {
+      loadROM(
+        `
+Loop
+    bcc Loop`,
+        wasmModule
+      );
+      statusRegister.carry = 0;
+      cpu.tick();
+      expect(cpu.pc).toBe(4096);
+    });
+
+    test("not branched", () => {
+      loadROM(
+        `
+Loop
+    bcc Loop`,
+        wasmModule
+      );
+      statusRegister.carry = 1;
+      cpu.tick();
+      expect(cpu.pc).toBe(4098);
+    });
+  });
+
+  test("BCS", () => {
+    loadROM(
+      `
+Loop
+    bcs Loop`,
+      wasmModule
+    );
+    statusRegister.carry = 1;
     cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("BEQ", () => {
+    loadROM(
+      `
+Loop
+    beq Loop`,
+      wasmModule
+    );
+    statusRegister.zero = 1;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  describe("BIT", () => {
+    test("state #1", () => {
+      const memory = getMemoryBuffer(wasmModule);
+      memory[0x009] = 0b00010101;
+      cpu.accumulator = 0b00010101;
+      loadROM(`bit $09`, wasmModule);
+      cpu.tick();
+      expect(statusRegister.zero).toBe(0);
+      expect(statusRegister.overflow).toBe(0);
+      expect(statusRegister.negative).toBe(0);
+    });
+
+    test("state #2", () => {
+      const memory = getMemoryBuffer(wasmModule);
+      memory[0x009] = 0b11000000;
+      cpu.accumulator = 0b00010101;
+      loadROM(`bit $09`, wasmModule);
+      cpu.tick();
+      expect(statusRegister.zero).toBe(1);
+      expect(statusRegister.overflow).toBe(1);
+      expect(statusRegister.negative).toBe(1);
+    });
+  });
+
+  test("BMI", () => {
+    loadROM(
+      `
+Loop
+    bmi Loop`,
+      wasmModule
+    );
+    statusRegister.negative = 1;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("BNE", () => {
+    loadROM(
+      `
+Loop
+    bne Loop`,
+      wasmModule
+    );
+    statusRegister.zero = 0;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("BPL", () => {
+    loadROM(
+      `
+Loop
+    bpl Loop`,
+      wasmModule
+    );
+    statusRegister.negative = 0;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("BVC", () => {
+    loadROM(
+      `
+Loop
+    bvc Loop`,
+      wasmModule
+    );
+    statusRegister.negative = 0;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("BVS", () => {
+    loadROM(
+      `
+Loop
+    bvs Loop`,
+      wasmModule
+    );
+    statusRegister.overflow = 1;
+    cpu.tick();
+    expect(cpu.pc).toBe(4096);
+  });
+
+  test("CLC", () => {
+    statusRegister.carry = 1;
+    loadROM(`clc`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.carry).toBe(0);
+  });
+
+  test("CLD", () => {
+    statusRegister.decimal = 1;
+    loadROM(`cld`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.decimal).toBe(0);
+  });
+
+  test("CLI", () => {
+    statusRegister.interrupt = 1;
+    loadROM(`cli`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.interrupt).toBe(0);
+  });
+
+  test("CLV", () => {
+    statusRegister.overflow = 1;
+    loadROM(`clv`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.overflow).toBe(0);
+  });
+
+  describe("CMP", () => {
+    test("positive", () => {
+      cpu.accumulator = 10;
+      loadROM(`cmp #$0a`, wasmModule);
+      cpu.tick();
+      expect(statusRegister.zero).toBe(1);
+      expect(statusRegister.carry).toBe(1);
+      expect(statusRegister.negative).toBe(0);
+    });
+
+    test("negative", () => {
+      cpu.accumulator = 10;
+      loadROM(`cmp #$0b`, wasmModule);
+      cpu.tick();
+      expect(statusRegister.zero).toBe(0);
+      expect(statusRegister.carry).toBe(0);
+      expect(statusRegister.negative).toBe(1);
+    });
+
+    test("carry set", () => {
+      cpu.accumulator = 10;
+      loadROM(`cmp #$09`, wasmModule);
+      cpu.tick();
+      expect(statusRegister.zero).toBe(0);
+      expect(statusRegister.carry).toBe(1);
+      expect(statusRegister.negative).toBe(0);
+    });
+  });
+
+  test("CPX", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x04] = 10;
+    cpu.xRegister = 10;
+    loadROM(`cpx $004`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.zero).toBe(1);
     expect(statusRegister.carry).toBe(1);
-    expect(statusRegister.zero).toBe(0);
     expect(statusRegister.negative).toBe(0);
   });
 
-  test("SBC", () => {
-    cpu.accumulator = 5;
-    cpu.statusRegister.carry = 0;
-    loadROM("sbc #$02", wasmModule);
+  test("CPY", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x04] = 10;
+    cpu.yRegister = 10;
+    loadROM(`cpy $004`, wasmModule);
     cpu.tick();
-    expect(cpu.accumulator).toBe(2);
-  });
-});
-
-describe("legacy tests", () => {
-  describe("BNE", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#BNE
-    test("branching", () => {
-      cpu.statusRegister.zero = false;
-      loadROM(
-        `
-    ldy #02
-Loop
-    dey
-    bne Loop`,
-        wasmModule
-      );
-      expect(cpu.pc).toEqual(4096);
-      cpu.tick(6);
-      expect(cpu.pc).toEqual(4098);
-      cpu.tick(4);
-      expect(cpu.pc).toEqual(4101);
-    });
+    expect(statusRegister.zero).toBe(1);
+    expect(statusRegister.carry).toBe(1);
+    expect(statusRegister.negative).toBe(0);
   });
 
-  describe("LSR", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#LSR
-
-    test("Accumulator", () => {
-      cpu.accumulator = 45;
-      loadROM("lsr", wasmModule);
-      cpu.tick();
-      expect(cpu.accumulator).toBe(22);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
+  test("DEC", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x009] = 10;
+    loadROM(`dec $09`, wasmModule);
+    cpu.tick();
+    expect(memory[0x009]).toBe(9);
   });
 
-  describe("LDX", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#LDX
-
-    test("Immediate", () => {
-      loadROM("ldx #03", wasmModule);
-      cpu.tick();
-      expect(cpu.xRegister).toBe(3);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
+  test("DEX", () => {
+    cpu.xRegister = 10;
+    loadROM(`dex`, wasmModule);
+    cpu.tick();
+    expect(cpu.xRegister).toBe(9);
   });
 
-  describe("LDY", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#LDY
-
-    test("Immediate", () => {
-      loadROM("ldy #03", wasmModule);
-      cpu.tick();
-      expect(cpu.yRegister).toBe(3);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
+  test("DEY", () => {
+    cpu.yRegister = 10;
+    loadROM(`dey`, wasmModule);
+    cpu.tick();
+    expect(cpu.yRegister).toBe(9);
   });
 
-  describe("INX", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#INX
-
-    test("Implied", () => {
-      cpu.xRegister = 9;
-      loadROM("inx", wasmModule);
-      cpu.tick();
-      expect(cpu.xRegister).toBe(10);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
-
-    test("Implied - overflow", () => {
-      cpu.xRegister = 255;
-      loadROM("inx", wasmModule);
-      cpu.tick();
-      expect(cpu.xRegister).toBe(0);
-    });
+  test("EOR", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x04] = 0b00101101;
+    cpu.accumulator = 0b00110101;
+    loadROM(`eor $004`, wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(0b00011000);
   });
 
-  describe("INY", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#INY
-
-    test("Implied", () => {
-      cpu.yRegister = 9;
-      loadROM("iny", wasmModule);
-      cpu.tick();
-      expect(cpu.yRegister).toBe(10);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
+  test("INC", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x009] = 10;
+    loadROM(`inc $09`, wasmModule);
+    cpu.tick();
+    expect(memory[0x009]).toBe(11);
   });
 
-  describe("DEY", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#DEY
-
-    test("Implied", () => {
-      cpu.yRegister = 9;
-      loadROM("dey", wasmModule);
-      cpu.tick();
-      expect(cpu.yRegister).toBe(8);
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
+  test("INX", () => {
+    cpu.xRegister = 10;
+    loadROM(`inx`, wasmModule);
+    cpu.tick();
+    expect(cpu.xRegister).toBe(11);
   });
 
-  describe("NOP", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#NOP
-
-    test("Implied", () => {
-      loadROM("nop", wasmModule);
-      cpu.tick();
-      expect(cpu.cyclesRemaining).toBe(1);
-    });
-  });
-
-  describe("STX", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#STX
-
-    test("Zero page", () => {
-      cpu.xRegister = 9;
-      loadROM("stx $08", wasmModule);
-      cpu.tick();
-      const memory = getMemoryBuffer(wasmModule);
-      expect(memory[8]).toBe(9);
-      expect(cpu.cyclesRemaining).toBe(2);
-    });
-  });
-
-  describe("STY", () => {
-    // http://www.obelisk.me.uk/6502/reference.html#STY
-
-    test("Zero page", () => {
-      cpu.yRegister = 0x12;
-      loadROM("sty $8", wasmModule);
-      cpu.tick();
-      const memory = getMemoryBuffer(wasmModule);
-      expect(memory[8]).toBe(0x12);
-      expect(cpu.cyclesRemaining).toBe(2);
-    });
+  test("INY", () => {
+    cpu.yRegister = 10;
+    loadROM(`iny`, wasmModule);
+    cpu.tick();
+    expect(cpu.yRegister).toBe(11);
   });
 
   describe("JMP", () => {
@@ -466,5 +500,161 @@ Loop
       cpu.tick();
       expect(cpu.pc).toBe(0x07fe);
     });
+  });
+
+  test("LDA", () => {
+    loadROM("lda #03", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(3);
+  });
+
+  test("LDX", () => {
+    loadROM("ldx #03", wasmModule);
+    cpu.tick();
+    expect(cpu.xRegister).toBe(3);
+  });
+
+  test("LDY", () => {
+    loadROM("ldy #03", wasmModule);
+    cpu.tick();
+    expect(cpu.yRegister).toBe(3);
+  });
+
+  test("LSR", () => {
+    cpu.accumulator = 0b10111011;
+    loadROM("lsr", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(0b01011101);
+    expect(statusRegister.carry).toBe(1);
+  });
+
+  test("ORA", () => {
+    cpu.accumulator = 0b11000001;
+    loadROM("ora #$03", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(0b11000011);
+  });
+
+  describe("ROL", () => {
+    test("no carry", () => {
+      cpu.accumulator = 0b11000001;
+      loadROM("rol", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0b10000010);
+    });
+
+    test("with carry", () => {
+      cpu.accumulator = 0b11000001;
+      statusRegister.carry = 1;
+      loadROM("rol", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0b10000011);
+    });
+  });
+
+  describe("ROR", () => {
+    test("no carry", () => {
+      cpu.accumulator = 0b11000000;
+      loadROM("ror", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0b01100000);
+      expect(statusRegister.carry).toBe(0);
+    });
+
+    test("carry", () => {
+      cpu.accumulator = 0b11000001;
+      statusRegister.carry = 1;
+      loadROM("ror", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0b11100000);
+      expect(statusRegister.carry).toBe(1);
+    });
+  });
+
+  describe("SBC", () => {
+    test("no carry", () => {
+      cpu.accumulator = 6;
+      loadROM("sbc #03", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(2);
+    });
+
+    test("carry", () => {
+      cpu.accumulator = 6;
+      statusRegister.carry = 1;
+      loadROM("sbc #03", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(3);
+    });
+  });
+
+  test("SEC", () => {
+    loadROM(`sec`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.carry).toBe(1);
+  });
+
+  test("SED", () => {
+    loadROM(`sed`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.decimal).toBe(1);
+  });
+
+  test("SEI", () => {
+    loadROM(`sei`, wasmModule);
+    cpu.tick();
+    expect(statusRegister.interrupt).toBe(1);
+  });
+
+  test("STA", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    cpu.accumulator = 5;
+    loadROM(`sta $09`, wasmModule);
+    cpu.tick();
+    expect(memory[0x009]).toBe(5);
+  });
+
+  test("STX", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    cpu.xRegister = 5;
+    loadROM(`stx $09`, wasmModule);
+    cpu.tick();
+    expect(memory[0x009]).toBe(5);
+  });
+
+  test("STY", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    cpu.yRegister = 5;
+    loadROM(`sty $09`, wasmModule);
+    cpu.tick();
+    expect(memory[0x009]).toBe(5);
+  });
+
+  test("TAX", () => {
+    cpu.accumulator = 5;
+    loadROM(`tax`, wasmModule);
+    cpu.tick();
+    expect(cpu.xRegister).toBe(5);
+  });
+
+  test("TAY", () => {
+    cpu.accumulator = 5;
+    loadROM(`tay`, wasmModule);
+    cpu.tick();
+    expect(cpu.yRegister).toBe(5);
+  });
+
+  test("TXA", () => {
+    cpu.xRegister = 5;
+    loadROM(`txa`, wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(5);
+  });
+
+  test("TYA", () => {
+    cpu.yRegister = 5;
+    loadROM(`tya`, wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(5);
   });
 });

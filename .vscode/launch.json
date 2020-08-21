@@ -15,6 +15,19 @@
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Code Gen",
+      "runtimeArgs": [
+          "-r",
+          "ts-node/register"
+      ],
+      "cwd": "${workspaceFolder}/codegen",
+      "args": [
+          "${workspaceFolder}/codegen/src/main.ts"
+      ]
+  }
   ]
 }

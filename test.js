@@ -1,6 +1,7 @@
 test = {
   skip: () => {}
 };
+
 const fs = require("fs");
 const loader = require("@assemblyscript/loader");
 const { loadROM, getMemoryBuffer } = require("./test/common");
@@ -10,15 +11,20 @@ const { loadROM, getMemoryBuffer } = require("./test/common");
     fs.promises.readFile("./build/untouched.wasm")
   );
 
-	cpu = wasmModule.CPU.wrap(wasmModule.cpu);
+  const cpu = wasmModule.CPU.wrap(wasmModule.cpu);
+  const tia = wasmModule.TIA.wrap(wasmModule.tia);
+  const memBuffer = getMemoryBuffer(wasmModule);
 
-	const memBuffer = getMemoryBuffer(wasmModule);
+  loadROM(
+    `
+    sta WSYNC
+    lda #08`,
+    wasmModule
+  );
 
-	// memBuffer[0x100] = 10;
-	// cpu.xRegister = 100;
-	cpu.accumulator = 25;
-	loadROM("sta $09", wasmModule);
 
-	cpu.tick();
-	console.log(memBuffer[0x09]);
+  for (let i = 0; i < 228; i++) {
+    tia.tick();
+    console.log(`tick ${i} acc=${cpu.accumulator}`);
+  }
 })();

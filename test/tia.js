@@ -35,7 +35,7 @@ test("TIA ticks 3 times for each 6502 clock tick", () => {
   expect(cpu.accumulator).toBe(8);
 });
 
-test("TIA pauses 6502 when WSYNC is strobed", () => {
+test.only("TIA pauses 6502 when WSYNC is strobed", () => {
   loadROM(
     `
     sta WSYNC

@@ -1,9 +1,9 @@
 var MyModule = (function (fs, path$1, crypto$1) {
   'use strict';
 
-  fs = fs && fs.hasOwnProperty('default') ? fs['default'] : fs;
-  path$1 = path$1 && path$1.hasOwnProperty('default') ? path$1['default'] : path$1;
-  crypto$1 = crypto$1 && crypto$1.hasOwnProperty('default') ? crypto$1['default'] : crypto$1;
+  fs = fs && Object.prototype.hasOwnProperty.call(fs, 'default') ? fs['default'] : fs;
+  path$1 = path$1 && Object.prototype.hasOwnProperty.call(path$1, 'default') ? path$1['default'] : path$1;
+  crypto$1 = crypto$1 && Object.prototype.hasOwnProperty.call(crypto$1, 'default') ? crypto$1['default'] : crypto$1;
 
   // Runtime header offsets
   const ID_OFFSET = -8;
@@ -1480,7 +1480,6 @@ var MyModule = (function (fs, path$1, crypto$1) {
   var Math_floor = Math.floor;
   var Math_min = Math.min;
   var runDependencies = 0;
-  var runDependencyWatcher = null;
   var dependenciesFulfilled = null;
   function addRunDependency(id) {
    runDependencies++;
@@ -1495,10 +1494,6 @@ var MyModule = (function (fs, path$1, crypto$1) {
     Module["monitorRunDependencies"](runDependencies);
    }
    if (runDependencies == 0) {
-    if (runDependencyWatcher !== null) {
-     clearInterval(runDependencyWatcher);
-     runDependencyWatcher = null;
-    }
     if (dependenciesFulfilled) {
      var callback = dependenciesFulfilled;
      dependenciesFulfilled = null;
@@ -5152,8 +5147,10 @@ var MyModule = (function (fs, path$1, crypto$1) {
   Module["FS_createDevice"] = FS.createDevice;
   Module["FS_unlink"] = FS.unlink;
   __ATINIT__.unshift((function() {
+   TTY.init();
   }));
   __ATEXIT__.push((function() {
+   TTY.shutdown();
   }));
   if (ENVIRONMENT_IS_NODE) {
    var fs$1 = fs;
@@ -5171,6 +5168,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     return Module["dynCall_iiii"](index, a1, a2, a3);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   function invoke_vi(index, a1) {
@@ -5178,6 +5176,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     Module["dynCall_vi"](index, a1);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   function invoke_vii(index, a1, a2) {
@@ -5185,6 +5184,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     Module["dynCall_vii"](index, a1, a2);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   function invoke_ii(index, a1) {
@@ -5192,6 +5192,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     return Module["dynCall_ii"](index, a1);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   function invoke_iii(index, a1, a2) {
@@ -5199,6 +5200,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     return Module["dynCall_iii"](index, a1, a2);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   function invoke_viiii(index, a1, a2, a3, a4) {
@@ -5206,6 +5208,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     Module["dynCall_viiii"](index, a1, a2, a3, a4);
    } catch (e) {
     if (typeof e !== "number" && e !== "longjmp") throw e;
+    asm["setThrew"](1, 0);
    }
   }
   Module.asmGlobalArg = {
@@ -5275,7 +5278,12 @@ var MyModule = (function (fs, path$1, crypto$1) {
    var l = env.tempDoublePtr | 0;
    var m = env.ABORT | 0;
    var n = env.cttz_i8 | 0;
+   var o = 0;
+   var p = 0;
+   var q = 0;
+   var r = 0;
    var s = global.NaN, t = global.Infinity;
+   var u = 0, v = 0, w = 0, x = 0, y = 0.0, z = 0, A = 0, B = 0, C = 0.0;
    var D = 0;
    var E = global.Math.floor;
    var F = global.Math.abs;
@@ -5322,6 +5330,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
    var sa = env.__exit;
    var ta = env.___syscall145;
    var ua = env.___syscall146;
+   var va = 0.0;
    
   // EMSCRIPTEN_START_FUNCS
   function ze(a) {
@@ -6529,6 +6538,8 @@ var MyModule = (function (fs, path$1, crypto$1) {
        n = o;
        break b;
       }
+     default:
+      {}
      }
      n = o + 1 | 0;
      o = n;
@@ -9601,6 +9612,8 @@ var MyModule = (function (fs, path$1, crypto$1) {
       }
       break;
      }
+    default:
+     {}
     } while (0);
     c[p >> 2] = (c[p >> 2] | 0) + 1;
    }
@@ -11153,6 +11166,8 @@ var MyModule = (function (fs, path$1, crypto$1) {
       c[m >> 2] = (c[m >> 2] | 0) + 4;
      }
     }
+   default:
+    {}
    } while (0);
    c[16544] = 256;
    while (1) {
@@ -11990,12 +12005,14 @@ var MyModule = (function (fs, path$1, crypto$1) {
    b = b | 0;
    e = e | 0;
    f = f | 0;
-   var g = 0, h = 0, i = 0, j = 0, k = 0, l = 0, n = 0, o = 0, p = 0;
+   var g = 0, h = 0, i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, o = 0, p = 0;
+   if ((c[f + 76 >> 2] | 0) > -1) m = Id(f) | 0; else m = 0;
    g = e + -1 | 0;
    if ((e | 0) < 2) {
     n = f + 74 | 0;
     l = a[n >> 0] | 0;
     a[n >> 0] = l + 255 | l;
+    if (m | 0) md(f);
     if (!g) a[b >> 0] = 0; else b = 0;
    } else {
     a : do if (!g) {
@@ -12041,6 +12058,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
      if ((e | 0) == (b | 0)) b = 0; else if (!(c[f >> 2] & 16)) b = 0; else n = 17;
     } while (0);
     if ((n | 0) == 17) if (!b) b = 0; else a[e >> 0] = 0;
+    if (m) md(f);
    }
    return b | 0;
   }
@@ -12388,7 +12406,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
    b = b | 0;
    d = d | 0;
    e = e | 0;
-   var f = 0, g = 0, h = 0, j = 0, k = 0, l = 0, m = 0, n = 0, p = 0, q = 0, r = 0, s = 0;
+   var f = 0, g = 0, h = 0, j = 0, k = 0, l = 0, m = 0, n = 0, o = 0, p = 0, q = 0, r = 0, s = 0;
    s = i;
    i = i + 224 | 0;
    n = s + 120 | 0;
@@ -12403,6 +12421,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
    } while ((f | 0) < (g | 0));
    c[n >> 2] = c[e >> 2];
    if ((Hd(0, d, n, q, p) | 0) < 0) e = -1; else {
+    if ((c[b + 76 >> 2] | 0) > -1) o = Id(b) | 0; else o = 0;
     e = c[b >> 2] | 0;
     m = e & 32;
     if ((a[b + 74 >> 0] | 0) < 1) c[b >> 2] = e & -33;
@@ -12431,6 +12450,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     } else e = Hd(b, d, n, q, p) | 0;
     f = c[b >> 2] | 0;
     c[b >> 2] = f | m;
+    if (o | 0) md(b);
     e = (f & 32 | 0) == 0 ? e : -1;
    }
    i = s;
@@ -12535,6 +12555,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     i = g;
     return j | 0;
    }
+   return 0;
   }
 
   function zc() {
@@ -13084,8 +13105,9 @@ var MyModule = (function (fs, path$1, crypto$1) {
    d = d | 0;
    e = e | 0;
    f = f | 0;
-   var g = 0, h = 0, i = 0, k = 0;
+   var g = 0, h = 0, i = 0, j = 0, k = 0, l = 0;
    k = S(e, d) | 0;
+   if ((c[f + 76 >> 2] | 0) > -1) j = Id(f) | 0; else j = 0;
    g = f + 74 | 0;
    i = a[g >> 0] | 0;
    a[g >> 0] = i + 255 | i;
@@ -13099,7 +13121,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     g = k - h | 0;
     b = b + h | 0;
    } else g = k;
-   a : do if (!g) ; else {
+   a : do if (!g) l = 13; else {
     i = f + 32 | 0;
     while (1) {
      if (yd(f) | 0) break;
@@ -13107,11 +13129,14 @@ var MyModule = (function (fs, path$1, crypto$1) {
      if ((h + 1 | 0) >>> 0 < 2) break;
      g = g - h | 0;
      if (!g) {
+      l = 13;
       break a;
      } else b = b + h | 0;
     }
+    if (j | 0) md(f);
     e = ((k - g | 0) >>> 0) / (d >>> 0) | 0;
    } while (0);
+   if ((l | 0) == 13) if (j) md(f);
    return e | 0;
   }
 
@@ -13599,6 +13624,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
   function Sd(b, d, e) {
    b = b | 0;
    d = d | 0;
+   e = e | 0;
    do if (!b) b = 1; else {
     if (d >>> 0 < 128) {
      a[b >> 0] = d;
@@ -13744,7 +13770,19 @@ var MyModule = (function (fs, path$1, crypto$1) {
    b = b | 0;
    d = d | 0;
    var e = 0, f = 0, g = 0;
-   if ((c[d + 76 >> 2] | 0) < 0) g = 3; else g = 3;
+   if ((c[d + 76 >> 2] | 0) < 0) g = 3; else if (!(Id(d) | 0)) g = 3; else {
+    if ((a[d + 75 >> 0] | 0) == (b | 0)) g = 10; else {
+     e = d + 20 | 0;
+     f = c[e >> 2] | 0;
+     if (f >>> 0 < (c[d + 16 >> 2] | 0) >>> 0) {
+      c[e >> 2] = f + 1;
+      a[f >> 0] = b;
+      e = b & 255;
+     } else g = 10;
+    }
+    if ((g | 0) == 10) e = oe(d, b) | 0;
+    md(d);
+   }
    do if ((g | 0) == 3) {
     if ((a[d + 75 >> 0] | 0) != (b | 0)) {
      e = d + 20 | 0;
@@ -14152,13 +14190,15 @@ var MyModule = (function (fs, path$1, crypto$1) {
 
   function he(a) {
    a = a | 0;
-   var b = 0;
+   var b = 0, d = 0;
    do if (!a) {
     if (!(c[14216] | 0)) b = 0; else b = he(c[14216] | 0) | 0;
     ha(76404);
     a = c[19100] | 0;
     if (a) do {
+     if ((c[a + 76 >> 2] | 0) > -1) d = Id(a) | 0; else d = 0;
      if ((c[a + 20 >> 2] | 0) >>> 0 > (c[a + 28 >> 2] | 0) >>> 0) b = ie(a) | 0 | b;
+     if (d | 0) md(a);
      a = c[a + 56 >> 2] | 0;
     } while ((a | 0) != 0);
     pa(76404);
@@ -14167,7 +14207,9 @@ var MyModule = (function (fs, path$1, crypto$1) {
      b = ie(a) | 0;
      break;
     }
+    d = (Id(a) | 0) == 0;
     b = ie(a) | 0;
+    if (!d) md(a);
    } while (0);
    return b | 0;
   }
@@ -14679,8 +14721,9 @@ var MyModule = (function (fs, path$1, crypto$1) {
 
   function xe(b) {
    b = b | 0;
-   var d = 0, e = 0;
+   var d = 0, e = 0, f = 0;
    e = c[14187] | 0;
+   if ((c[e + 76 >> 2] | 0) > -1) f = Id(e) | 0; else f = 0;
    do if ((re(b, e) | 0) < 0) b = 1; else {
     if ((a[e + 75 >> 0] | 0) != 10) {
      b = e + 20 | 0;
@@ -14694,6 +14737,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     }
     b = (oe(e, 10) | 0) < 0;
    } while (0);
+   if (f | 0) md(e);
    return b << 31 >> 31 | 0;
   }
 
@@ -14849,6 +14893,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     i = b;
     return d | 0;
    }
+   return 0;
   }
 
   function Dc(b) {
@@ -15285,6 +15330,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     i = e;
     return f | 0;
    }
+   return 0;
   }
 
   function La() {
@@ -15719,6 +15765,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     i = e;
     return d | 0;
    }
+   return 0;
   }
 
   function Sa(b) {
@@ -15851,10 +15898,12 @@ var MyModule = (function (fs, path$1, crypto$1) {
    b = b | 0;
    d = d | 0;
    e = e | 0;
-   var f = 0;
+   var f = 0, g = 0;
    f = S(d, b) | 0;
    if ((c[e + 76 >> 2] | 0) > -1) {
+    g = (Id(e) | 0) == 0;
     a = Jd(a, f, e) | 0;
+    if (!g) md(e);
    } else a = Jd(a, f, e) | 0;
    if ((a | 0) != (f | 0)) d = (a >>> 0) / (b >>> 0) | 0;
    return d | 0;
@@ -16148,8 +16197,11 @@ var MyModule = (function (fs, path$1, crypto$1) {
    a = a | 0;
    b = b | 0;
    d = d | 0;
+   var e = 0;
    if ((c[a + 76 >> 2] | 0) > -1) {
+    e = (Id(a) | 0) == 0;
     b = ne(a, b, d) | 0;
+    if (!e) md(a);
    } else b = ne(a, b, d) | 0;
    return b | 0;
   }
@@ -16222,6 +16274,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
     a = c[a + 12 >> 2] | 0;
     return a | 0;
    }
+   return 0;
   }
 
   function _b(a, b) {
@@ -16366,7 +16419,9 @@ var MyModule = (function (fs, path$1, crypto$1) {
 
   function pe(a) {
    a = a | 0;
+   var b = 0;
    if ((c[a + 76 >> 2] | 0) > -1) {
+    b = (Id(a) | 0) == 0;
     a = qe(a) | 0;
    } else a = qe(a) | 0;
    return a | 0;
@@ -16478,7 +16533,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
   function Pd(a, b) {
    a = a | 0;
    b = b | 0;
-   if (!a) a = 0; else a = Sd(a, b) | 0;
+   if (!a) a = 0; else a = Sd(a, b, 0) | 0;
    return a | 0;
   }
   function Ca(a) {
@@ -16544,15 +16599,28 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function af(a, b, c, d) {
+   a = a | 0;
+   b = b | 0;
+   c = c | 0;
+   d = d | 0;
    W(5);
   }
 
   function Xe(a, b, c) {
+   a = a | 0;
+   b = b | 0;
+   c = c | 0;
    W(0);
    return 0;
   }
 
   function Ga(a, b) {
+   a = a | 0;
+   b = b | 0;
+   if (!o) {
+    o = a;
+    p = b;
+   }
   }
 
   function Ue(a, b) {
@@ -16569,10 +16637,14 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function od(a) {
+   a = a | 0;
+   if (!(c[a + 68 >> 2] | 0)) md(a);
    return;
   }
 
   function ld(a) {
+   a = a | 0;
+   if (!(c[a + 68 >> 2] | 0)) md(a);
    return;
   }
 
@@ -16594,6 +16666,8 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function $e(a, b) {
+   a = a | 0;
+   b = b | 0;
    W(4);
    return 0;
   }
@@ -16606,6 +16680,8 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function Ze(a, b) {
+   a = a | 0;
+   b = b | 0;
    W(2);
   }
 
@@ -16615,8 +16691,19 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function _e(a) {
+   a = a | 0;
    W(3);
    return 0;
+  }
+
+  function Id(a) {
+   a = a | 0;
+   return 0;
+  }
+
+  function md(a) {
+   a = a | 0;
+   return;
   }
 
   function Ha(a) {
@@ -16630,6 +16717,7 @@ var MyModule = (function (fs, path$1, crypto$1) {
   }
 
   function Ye(a) {
+   a = a | 0;
    W(1);
   }
 

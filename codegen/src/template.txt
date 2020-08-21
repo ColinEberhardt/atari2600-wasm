@@ -1,0 +1,58 @@
+import Memory from "./memory";
+
+export class StatusRegister {
+  carry: u8;
+  overflow: u8;
+  negative: u8;
+  zero: u8;
+  interrupt: u8;
+  decimal: u8;
+  constructor() {}
+}
+
+export class CPU {
+  accumulator: u8;
+  xRegister: u8;
+  yRegister: u8;
+  memory: Memory;
+  pc: u32;
+  cyclesRemaining: u8;
+  paused: boolean;
+  statusRegister: StatusRegister;
+
+  constructor(memory: Memory) {
+    this.memory = memory;
+    this.pc = memory.getROMStartAddress();
+    this.paused = false;
+    this.statusRegister = new StatusRegister();
+  }
+
+  tick(ticks: u32 = 1): void {
+    for (let i: u32 = 0; i < ticks; i++) {
+      this.tickOnce();
+    }
+  }
+
+  tickOnce(): void {
+    if (this.cyclesRemaining > 0) {
+      this.cyclesRemaining--;
+      return;
+    }
+
+    // if the TIA is pausing the 6502, we still need to count down the remaining cycles for
+    // the most recent operations
+    if (this.paused) {
+      return;
+    }
+
+    const opcode: u8 = this.memory.read(this.pc++);
+    
+    switch (opcode) {
+      ###CODEGEN###
+
+      default:
+        trace("unrecognised opcode " + opcode.toString());
+        break;
+    }
+  }
+}

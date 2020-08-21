@@ -4,6 +4,7 @@
     "asbuild:optimized": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --sourceMap --validate --optimize",
     "asbuild": "npm run asbuild:untouched",
     "test": "jest",
+    "codegen": "cd codegen && npm run codegen",
     "bundle": "rollup  --config",
     "watch:asbuild": "nodemon --watch assembly -e ts -x \"npm run asbuild\"",
     "watch:test": "nodemon --watch build --watch test -e wasm,js -x \"npm run test\"",
