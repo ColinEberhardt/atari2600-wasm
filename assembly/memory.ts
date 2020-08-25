@@ -43,7 +43,7 @@ export default class Memory {
     return this.buffer;
   }
 
-  getROMStartAddress(): u32 {
+  getROMStartAddress(): u16 {
     return 0x1000;
   }
 }
