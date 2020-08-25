@@ -35,6 +35,10 @@ export default class Memory {
     return this.buffer[address];
   }
 
+  readWord(address: u32): u16 {
+    return this.buffer[address] + (this.buffer[address + 1] * 0x100) as u16;
+  }
+
   getBuffer(): Array<u8> {
     return this.buffer;
   }

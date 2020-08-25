@@ -36,33 +36,37 @@ const applyAddressingMode = (mode: AddressingModeType) => {
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.Indirect:
       return `
-        const addrref: u32 = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-        const addr: u32 = this.memory.read(addrref) + this.memory.read(addrref + 1) * 0x100;`;
+        const addrref: u32 = this.memory.readWord(this.pc);
+        this.pc += 2;
+        const addr: u32 = this.memory.readWord(addrref);`;
     case AddressingModeType.Absolute:
       return `
-        const addr: u32 = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+        const addr: u32 = this.memory.readWord(this.pc);
+        this.pc += 2;
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.AbsoluteX:
       return `
-        const baseAddr: u32 = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100
-        const addr: u32= baseAddr + this.xRegister;
+        const baseAddr: u32 = this.memory.readWord(this.pc);
+        this.pc += 2;
+        const addr: u32 = baseAddr + this.xRegister;
         const pageCrossed = Math.floor(baseAddr/256) != Math.floor(addr/256);
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.AbsoluteY:
       return `
-        const baseAddr: u32 = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100
+      const baseAddr: u32 = this.memory.readWord(this.pc);
+      this.pc += 2;
         const addr = baseAddr + this.yRegister;
         const pageCrossed = Math.floor(baseAddr/256) != Math.floor(addr/256);
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.IndirectX:
       return `
         const indirectAddr: u32 = (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-        const addr: u32 = this.memory.read(indirectAddr) + this.memory.read(indirectAddr + 1) * 0x100;
+        const addr: u32 = this.memory.readWord(indirectAddr);
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.IndirectY:
       return `
       const operand: u32 = this.memory.read(this.pc++);
-      const addr: u32 = this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+      const addr: u32 = this.memory.readWord(operand);
       const pageCrossed = Math.floor(addr/256) != Math.floor((addr + this.yRegister)/256);
       const memval: u16 = this.memory.read(addr + this.yRegister);`;
     case AddressingModeType.Implied:

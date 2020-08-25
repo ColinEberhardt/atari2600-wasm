@@ -112,8 +112,8 @@ export class CPU {
 
       case 0x6d:
         /* ADC */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
@@ -133,8 +133,8 @@ export class CPU {
 
       case 0x7d:
         /* ADC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -157,8 +157,8 @@ export class CPU {
 
       case 0x79:
         /* ADC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -183,9 +183,7 @@ export class CPU {
         /* ADC */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
@@ -206,8 +204,7 @@ export class CPU {
       case 0x71:
         /* ADC */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -265,8 +262,8 @@ export class CPU {
 
       case 0x2d:
         /* AND */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -278,8 +275,8 @@ export class CPU {
 
       case 0x3d:
         /* AND */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -294,8 +291,8 @@ export class CPU {
 
       case 0x39:
         /* AND */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -312,9 +309,7 @@ export class CPU {
         /* AND */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -327,8 +322,7 @@ export class CPU {
       case 0x31:
         /* AND */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -381,8 +375,8 @@ export class CPU {
 
       case 0x0e:
         /* ASL */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval << 1;
           this.statusRegister.carry = boolToInt(result > 0xff);
@@ -395,8 +389,8 @@ export class CPU {
 
       case 0x1e:
         /* ASL */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -463,8 +457,8 @@ export class CPU {
 
       case 0x2c:
         /* BIT */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator & memval;
           this.statusRegister.overflow = boolToInt((memval & 64) == 64);
@@ -605,8 +599,8 @@ export class CPU {
 
       case 0xcd:
         /* CMP */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
           this.statusRegister.carry = boolToInt(result >= 0);
@@ -618,8 +612,8 @@ export class CPU {
 
       case 0xdd:
         /* CMP */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -634,8 +628,8 @@ export class CPU {
 
       case 0xd9:
         /* CMP */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -652,9 +646,7 @@ export class CPU {
         /* CMP */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
           this.statusRegister.carry = boolToInt(result >= 0);
@@ -667,8 +659,7 @@ export class CPU {
       case 0xd1:
         /* CMP */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -705,8 +696,8 @@ export class CPU {
 
       case 0xec:
         /* CPX */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.xRegister - memval;
           this.statusRegister.carry = boolToInt(result >= 0);
@@ -741,8 +732,8 @@ export class CPU {
 
       case 0xcc:
         /* CPY */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.yRegister - memval;
           this.statusRegister.carry = boolToInt(result >= 0);
@@ -779,8 +770,8 @@ export class CPU {
 
       case 0xce:
         /* DEC */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval - 1;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -792,8 +783,8 @@ export class CPU {
 
       case 0xde:
         /* DEC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -864,8 +855,8 @@ export class CPU {
 
       case 0x4d:
         /* EOR */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -877,8 +868,8 @@ export class CPU {
 
       case 0x5d:
         /* EOR */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -893,8 +884,8 @@ export class CPU {
 
       case 0x59:
         /* EOR */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -911,9 +902,7 @@ export class CPU {
         /* EOR */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -926,8 +915,7 @@ export class CPU {
       case 0x51:
         /* EOR */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -966,8 +954,8 @@ export class CPU {
 
       case 0xee:
         /* INC */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval + 1;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -979,8 +967,8 @@ export class CPU {
 
       case 0xfe:
         /* INC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1015,8 +1003,8 @@ export class CPU {
 
       case 0x4c:
         /* JMP */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           this.cyclesRemaining = 2;
           this.pc = addr;
@@ -1025,10 +1013,9 @@ export class CPU {
 
       case 0x6c:
         /* JMP */ {
-          const addrref: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
-          const addr: u32 =
-            this.memory.read(addrref) + this.memory.read(addrref + 1) * 0x100;
+          const addrref: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
+          const addr: u32 = this.memory.readWord(addrref);
           this.cyclesRemaining = 4;
           this.pc = addr;
         }
@@ -1072,8 +1059,8 @@ export class CPU {
 
       case 0xad:
         /* LDA */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1085,8 +1072,8 @@ export class CPU {
 
       case 0xbd:
         /* LDA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1101,8 +1088,8 @@ export class CPU {
 
       case 0xb9:
         /* LDA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1119,9 +1106,7 @@ export class CPU {
         /* LDA */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1134,8 +1119,7 @@ export class CPU {
       case 0xb1:
         /* LDA */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -1185,8 +1169,8 @@ export class CPU {
 
       case 0xae:
         /* LDX */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1198,8 +1182,8 @@ export class CPU {
 
       case 0xbe:
         /* LDX */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1250,8 +1234,8 @@ export class CPU {
 
       case 0xac:
         /* LDY */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1263,8 +1247,8 @@ export class CPU {
 
       case 0xbc:
         /* LDY */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1318,8 +1302,8 @@ export class CPU {
 
       case 0x4e:
         /* LSR */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval >> 1;
           this.statusRegister.carry = boolToInt((memval & 1) == 1);
@@ -1332,8 +1316,8 @@ export class CPU {
 
       case 0x5e:
         /* LSR */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1391,8 +1375,8 @@ export class CPU {
 
       case 0x0d:
         /* ORA */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1404,8 +1388,8 @@ export class CPU {
 
       case 0x1d:
         /* ORA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1420,8 +1404,8 @@ export class CPU {
 
       case 0x19:
         /* ORA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1438,9 +1422,7 @@ export class CPU {
         /* ORA */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
           this.statusRegister.zero = boolToInt(result === 0);
@@ -1453,8 +1435,7 @@ export class CPU {
       case 0x11:
         /* ORA */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -1507,8 +1488,8 @@ export class CPU {
 
       case 0x2e:
         /* ROL */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval << 1) + this.statusRegister.carry;
           this.statusRegister.carry = boolToInt(result > 0xff);
@@ -1521,8 +1502,8 @@ export class CPU {
 
       case 0x3e:
         /* ROL */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1577,8 +1558,8 @@ export class CPU {
 
       case 0x6e:
         /* ROR */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
           this.statusRegister.carry = boolToInt((memval & 1) == 1);
@@ -1591,8 +1572,8 @@ export class CPU {
 
       case 0x7e:
         /* ROR */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1668,8 +1649,8 @@ export class CPU {
 
       case 0xed:
         /* SBC */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
@@ -1689,8 +1670,8 @@ export class CPU {
 
       case 0xfd:
         /* SBC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1713,8 +1694,8 @@ export class CPU {
 
       case 0xf9:
         /* SBC */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1739,9 +1720,7 @@ export class CPU {
         /* SBC */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
@@ -1762,8 +1741,7 @@ export class CPU {
       case 0xf1:
         /* SBC */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -1829,8 +1807,8 @@ export class CPU {
 
       case 0x8d:
         /* STA */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator;
 
@@ -1841,8 +1819,8 @@ export class CPU {
 
       case 0x9d:
         /* STA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr: u32 = baseAddr + this.xRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1856,8 +1834,8 @@ export class CPU {
 
       case 0x99:
         /* STA */ {
-          const baseAddr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const baseAddr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const addr = baseAddr + this.yRegister;
           const pageCrossed =
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
@@ -1873,9 +1851,7 @@ export class CPU {
         /* STA */ {
           const indirectAddr: u32 =
             (this.memory.read(this.pc++) + this.xRegister) & 0xff;
-          const addr: u32 =
-            this.memory.read(indirectAddr) +
-            this.memory.read(indirectAddr + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(indirectAddr);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator;
 
@@ -1887,8 +1863,7 @@ export class CPU {
       case 0x91:
         /* STA */ {
           const operand: u32 = this.memory.read(this.pc++);
-          const addr: u32 =
-            this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+          const addr: u32 = this.memory.readWord(operand);
           const pageCrossed =
             Math.floor(addr / 256) != Math.floor((addr + this.yRegister) / 256);
           const memval: u16 = this.memory.read(addr + this.yRegister);
@@ -1924,8 +1899,8 @@ export class CPU {
 
       case 0x8e:
         /* STX */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.xRegister;
 
@@ -1959,8 +1934,8 @@ export class CPU {
 
       case 0x8c:
         /* STY */ {
-          const addr: u32 =
-            this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
+          const addr: u32 = this.memory.readWord(this.pc);
+          this.pc += 2;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.yRegister;
 
