@@ -1,14 +1,5 @@
 import Memory from "./memory";
-
-export class StatusRegister {
-  carry: u8;
-  overflow: u8;
-  negative: u8;
-  zero: u8;
-  interrupt: u8;
-  decimal: u8;
-  constructor() {}
-}
+import StatusRegister from "./statusRegister";
 
 const boolToInt = (value: boolean): u8 => value ? 1 : 0;
 

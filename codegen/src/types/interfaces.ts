@@ -87,6 +87,16 @@ export interface TestInstruction extends InstructionBase {
   condition: string;
 }
 
+export interface PushInstruction extends InstructionBase {
+  type: "push";
+  expression: string;
+}
+
+export interface PopInstruction extends InstructionBase {
+  type: "pop";
+  assignee: string;
+}
+
 export interface EmptyInstruction extends InstructionBase {
   type: "empty";
 }
@@ -94,7 +104,7 @@ export interface EmptyInstruction extends InstructionBase {
 export interface AssignmentInstruction extends InstructionBase {
   type: "assignment";
   assignee: string;
-  algorithm: string;
+  expression: string;
 }
 
 export type Instruction =
@@ -102,4 +112,6 @@ export type Instruction =
   | BranchInstruction
   | TestInstruction
   | EmptyInstruction
-  | JumpInstruction;
+  | JumpInstruction
+  | PushInstruction
+  | PopInstruction;

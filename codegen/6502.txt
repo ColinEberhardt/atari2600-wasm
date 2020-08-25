@@ -380,6 +380,42 @@ ORA  OR Memory with Accumulator
      (indirect,X)  ORA (oper,X)  01    2     6
      (indirect),Y  ORA (oper),Y  11    2     5*
 
+PHA  Push Accumulator on Stack
+
+     push A                           N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHA           48    1     3
+
+PHP  Push Processor Status on Stack
+
+     push SR                          N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHP           08    1     3
+
+PLA  Pull Accumulator from Stack
+
+     pull A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PLA           68    1     4
+
+PLP  Pull Processor Status from Stack
+
+     pull SR                          N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PLP           28    1     4
+
 ROL  Rotate One Bit Left (Memory or Accumulator)
 
      (M << 1) + C -> M                N Z C I D V

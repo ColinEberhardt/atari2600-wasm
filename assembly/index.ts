@@ -1,4 +1,5 @@
-import { CPU, StatusRegister } from "./cpu";
+import { CPU } from "./cpu";
+import StatusRegister from "./statusRegister";
 import Memory from "./memory";
 import TIA from "./tia";
 

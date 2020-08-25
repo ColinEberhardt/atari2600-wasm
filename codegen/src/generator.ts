@@ -10,7 +10,9 @@ import {
   TestInstruction,
   EmptyInstruction,
   JumpInstruction,
-  CycleModifier
+  CycleModifier,
+  PushInstruction,
+  PopInstruction
 } from "./types/interfaces";
 import { lookup } from "./util";
 
@@ -87,7 +89,8 @@ function replaceRegisters(algorithm) {
     ["D", "this.statusRegister.decimal"],
     ["X", "this.xRegister"],
     ["Y", "this.yRegister"],
-    ["PC", "this.pc"]
+    ["PC", "this.pc"],
+    ["SR", "this.statusRegister.pack()"]
   ].forEach(s => {
     algorithm = algorithm.replace(s[0], s[1]);
   });
@@ -100,6 +103,7 @@ const assignValue = (assignee: string, addressMode: AddressingModeType) =>
       A: "this.accumulator = (result & 0xff) as u8;",
       X: "this.xRegister = (result & 0xff) as u8;",
       Y: "this.yRegister = (result & 0xff) as u8;",
+      SR: "this.statusRegister.unpack(result as u8);",
       PC: "this.pc = addr;",
       M:
         addressMode == AddressingModeType.Accumulator
@@ -167,8 +171,32 @@ const generateAssignment = (
 ) => `
   case 0x${address.opcode}: /* ${instruction.name} */ {
     ${applyAddressingMode(address.mode)}
-    const result: u16 = ${replaceRegisters(instruction.algorithm)};
+    const result: u16 = ${replaceRegisters(instruction.expression)};
     ${setFlags(instruction.flags)}
+    ${assignValue(instruction.assignee, address.mode)}
+    ${handleCycles(address)};
+  }
+  break;`;
+
+const generatePush = (
+  instruction: PushInstruction,
+  address: AddressingMode
+) => `
+  case 0x${address.opcode}: /* ${instruction.name} */ {
+    ${applyAddressingMode(address.mode)}
+    const result: u16 = ${replaceRegisters(instruction.expression)};
+    this.memory.push((result & 0xff) as u8);
+    ${handleCycles(address)};
+  }
+  break;`;
+
+const generatePop = (
+  instruction: PopInstruction,
+  address: AddressingMode
+) => `
+  case 0x${address.opcode}: /* ${instruction.name} */ {
+    ${applyAddressingMode(address.mode)}
+    const result = this.memory.pop();
     ${assignValue(instruction.assignee, address.mode)}
     ${handleCycles(address)};
   }
@@ -222,6 +250,10 @@ const generateAs = (instruction: Instruction) =>
           return generateEmpty(instruction, address);
         case "jump":
           return generateJump(instruction, address);
+        case "push":
+          return generatePush(instruction, address);
+        case "pop":
+          return generatePop(instruction, address);
       }
     })
     .join("\n");

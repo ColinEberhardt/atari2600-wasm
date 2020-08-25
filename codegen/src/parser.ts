@@ -120,11 +120,11 @@ const parseInstruction = (lines: string[]): Instruction => {
     };
   }
   if (inst.includes("->")) {
-    const [algorithm, assignee] = inst.split("->").map(s => s.trim());
+    const [expression, assignee] = inst.split("->").map(s => s.trim());
     return {
       ...base,
       type: "assignment",
-      algorithm,
+      expression,
       assignee
     };
   }
@@ -133,6 +133,20 @@ const parseInstruction = (lines: string[]): Instruction => {
       ...base,
       type: "branch",
       condition: inst.replace("branch on", "").trim()
+    };
+  }
+  if (inst.includes("push")) {
+    return {
+      ...base,
+      type: "push",
+      expression: inst.replace("push", "").trim()
+    };
+  }
+  if (inst.includes("pull")) {
+    return {
+      ...base,
+      type: "pop",
+      assignee: inst.replace("pull", "").trim()
     };
   }
   if (inst === "") {

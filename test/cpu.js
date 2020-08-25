@@ -561,6 +561,41 @@ Loop
     expect(cpu.accumulator).toBe(0b11000011);
   });
 
+  test("PHA", () => {
+    cpu.accumulator = 5;
+    loadROM("pha", wasmModule);
+    cpu.tick();
+    const memory = getMemoryBuffer(wasmModule);
+    expect(memory[0x1ff]).toBe(5);
+  });
+
+  test("PHP", () => {
+    statusRegister.carry = 1;
+    statusRegister.interrupt = 1;
+    loadROM("php", wasmModule);
+    cpu.tick();
+    const memory = getMemoryBuffer(wasmModule);
+    expect(memory[0x1ff]).toBe(0b00000101);
+  });
+
+
+  test("PLA", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x1ff] = 5;
+    loadROM("pla", wasmModule);
+    cpu.tick();
+    expect(cpu.accumulator).toBe(5);
+  });
+
+  test("PLP", () => {
+    const memory = getMemoryBuffer(wasmModule);
+    memory[0x1ff] = 0b00000101;
+    loadROM("plp", wasmModule);
+    cpu.tick();
+    expect(statusRegister.carry).toBe(1);
+    expect(statusRegister.interrupt).toBe(1);
+  });
+
   describe("ROL", () => {
     test("no carry", () => {
       cpu.accumulator = 0b11000001;

@@ -1,14 +1,5 @@
 import Memory from "./memory";
-
-export class StatusRegister {
-  carry: u8;
-  overflow: u8;
-  negative: u8;
-  zero: u8;
-  interrupt: u8;
-  decimal: u8;
-  constructor() {}
-}
+import StatusRegister from "./statusRegister";
 
 const boolToInt = (value: boolean): u8 => (value ? 1 : 0);
 
@@ -1432,6 +1423,38 @@ export class CPU {
           this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 4 + boolToInt(pageCrossed);
+        }
+        break;
+
+      case 0x48:
+        /* PHA */ {
+          const result: u16 = this.accumulator;
+          this.memory.push((result & 0xff) as u8);
+          this.cyclesRemaining = 2;
+        }
+        break;
+
+      case 0x08:
+        /* PHP */ {
+          const result: u16 = this.statusRegister.pack();
+          this.memory.push((result & 0xff) as u8);
+          this.cyclesRemaining = 2;
+        }
+        break;
+
+      case 0x68:
+        /* PLA */ {
+          const result = this.memory.pop();
+          this.accumulator = (result & 0xff) as u8;
+          this.cyclesRemaining = 3;
+        }
+        break;
+
+      case 0x28:
+        /* PLP */ {
+          const result = this.memory.pop();
+          this.statusRegister.unpack(result as u8);
+          this.cyclesRemaining = 3;
         }
         break;
 
