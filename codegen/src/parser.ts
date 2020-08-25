@@ -6,10 +6,9 @@ import {
   FlagsMap,
   FlagEffect,
   AddressingModeType,
-  InstructionBase,
-  AssignmentInstruction
+  InstructionBase
 } from "./types/interfaces";
-import { lookup } from "./util";
+import { lookup, pair, pairToMap } from "./util";
 
 const groupByInstruction = (accumulator: String[][], line: string) => {
   if (!line.startsWith(" ")) {
@@ -93,17 +92,6 @@ const flagNames = [
   "overflow"
 ];
 
-const pair = (arr1, arr2) => arr1.map((a, i) => [a, arr2[i]]);
-
-const pairToMap = arr =>
-  arr.reduce(
-    (prev, [key, value]) => ({
-      [key]: value,
-      ...prev
-    }),
-    {}
-  );
-
 const parseFlags = (lines: string[]): FlagsMap => {
   const flagsHeaderIndex = lines.findIndex(l => l.endsWith("N Z C I D V"));
   const flagsLine = lines[flagsHeaderIndex + 1];
@@ -138,7 +126,7 @@ const parseInstruction = (lines: string[]): Instruction => {
       type: "assignment",
       algorithm,
       assignee
-    } as AssignmentInstruction;
+    };
   }
   if (inst.includes("branch on")) {
     return {

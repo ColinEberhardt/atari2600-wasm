@@ -10,6 +10,8 @@ export class StatusRegister {
   constructor() {}
 }
 
+const boolToInt = (value: boolean): u8 => value ? 1 : 0;
+
 export class CPU {
   accumulator: u8;
   xRegister: u8;

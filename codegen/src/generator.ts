@@ -62,8 +62,7 @@ const applyAddressingMode = (mode: AddressingModeType) => {
 };
 
 function replaceRegisters(algorithm) {
-  const substitutions = [
-    ["A/M", "memval"],
+  [
     ["A", "this.accumulator"],
     ["=", "=="],
     ["M", "memval"],
@@ -76,8 +75,7 @@ function replaceRegisters(algorithm) {
     ["X", "this.xRegister"],
     ["Y", "this.yRegister"],
     ["PC", "this.pc"]
-  ];
-  substitutions.forEach(s => {
+  ].forEach(s => {
     algorithm = algorithm.replace(s[0], s[1]);
   });
   return algorithm;
@@ -98,12 +96,12 @@ const assignValue = (assignee: string, addressMode: AddressingModeType) =>
     assignee
   );
 
-const setFlags = (flags: FlagsMap, isTest: boolean = false) =>
+const setFlags = (flags: FlagsMap, isTestInstruction: boolean = false) =>
   Object.entries(flags)
     .map(([flag, value]) => {
       if (value < 8) {
         const factor = Math.pow(2, value);
-        return `this.statusRegister.${flag} = (memval & ${factor}) == ${factor} ? 1 : 0;`;
+        return `this.statusRegister.${flag} = boolToInt((memval & ${factor}) == ${factor});`;
       }
       switch (value) {
         case FlagEffect.Cleared:
@@ -113,21 +111,26 @@ const setFlags = (flags: FlagsMap, isTest: boolean = false) =>
         case FlagEffect.Modified:
           return lookup(
             {
-              carry: isTest
-                ? "this.statusRegister.carry = result >= 0 ? 1 : 0;"
-                : "this.statusRegister.carry = result > 0xff ? 1 : 0;",
-              negative: isTest
-                ? "this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;"
-                : "this.statusRegister.negative = result !== 0 ? 1 : 0;",
-              zero: "this.statusRegister.zero = result === 0 ? 1 : 0;",
+              carry: isTestInstruction
+                ? "this.statusRegister.carry = boolToInt(result >= 0);"
+                : "this.statusRegister.carry = boolToInt(result > 0xff);",
+              negative: isTestInstruction
+                ? "this.statusRegister.negative = boolToInt((result & 128) === 128);"
+                : "this.statusRegister.negative = boolToInt(result !== 0);",
+              zero: "this.statusRegister.zero = boolToInt(result === 0);",
               overflow:
-                "this.statusRegister.overflow = (~(this.accumulator ^ memval) & (this.accumulator ^ result) & 0x80) === 0x80 ? 1 : 0;"
+                "this.statusRegister.overflow = boolToInt((~(this.accumulator ^ memval) & (this.accumulator ^ result) & 0x80) === 0x80);"
             },
             flag
           );
       }
     })
     .join("\n");
+
+const handleCycles = (address: AddressingMode) =>
+  address.cycleModifier === CycleModifier.PageBoundaryCrossed
+    ? ` this.cyclesRemaining = ${address.cycles - 1} + boolToInt(pageCrossed);`
+    : ` this.cyclesRemaining = ${address.cycles - 1};`;
 
 const generateBranch = (
   instruction: BranchInstruction,
@@ -145,11 +148,6 @@ const generateBranch = (
     } 
   }
   break;`;
-
-const handleCycles = (address: AddressingMode) =>
-  address.cycleModifier === CycleModifier.PageBoundaryCrossed
-    ? ` this.cyclesRemaining = ${address.cycles - 1} + (pageCrossed ? 1 : 0);`
-    : ` this.cyclesRemaining = ${address.cycles - 1};`;
 
 const generateAssignment = (
   instruction: AssignmentInstruction,

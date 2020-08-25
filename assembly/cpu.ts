@@ -10,6 +10,8 @@ export class StatusRegister {
   constructor() {}
 }
 
+const boolToInt = (value: boolean): u8 => (value ? 1 : 0);
+
 export class CPU {
   accumulator: u8;
   xRegister: u8;
@@ -54,16 +56,15 @@ export class CPU {
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -77,16 +78,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -100,16 +100,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -124,16 +123,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -151,18 +149,17 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -178,18 +175,17 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator + memval + this.statusRegister.carry;
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -198,8 +194,8 @@ export class CPU {
           trace("AND");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -212,8 +208,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -226,8 +222,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -241,8 +237,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -259,10 +255,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -277,10 +273,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator & memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -289,9 +285,9 @@ export class CPU {
           trace("ASL");
           const memval: u16 = this.accumulator;
           const result: u16 = memval << 1;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -304,9 +300,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval << 1;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -319,9 +315,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval << 1;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -335,9 +331,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval << 1;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -354,9 +350,9 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval << 1;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -411,9 +407,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator & memval;
-          this.statusRegister.overflow = (memval & 64) == 64 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (memval & 128) == 128 ? 1 : 0;
+          this.statusRegister.overflow = boolToInt((memval & 64) == 64);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((memval & 128) == 128);
           this.cyclesRemaining = 2;
         }
         break;
@@ -426,9 +422,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator & memval;
-          this.statusRegister.overflow = (memval & 64) == 64 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (memval & 128) == 128 ? 1 : 0;
+          this.statusRegister.overflow = boolToInt((memval & 64) == 64);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((memval & 128) == 128);
           this.cyclesRemaining = 3;
         }
         break;
@@ -544,9 +540,9 @@ export class CPU {
           trace("CMP");
           const memval: u16 = this.memory.read(this.pc++);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 1;
         }
         break;
@@ -558,9 +554,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 2;
         }
         break;
@@ -572,9 +568,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 3;
         }
         break;
@@ -587,9 +583,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 3;
         }
         break;
@@ -605,10 +601,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -623,10 +619,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.accumulator - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -635,9 +631,9 @@ export class CPU {
           trace("CPX");
           const memval: u16 = this.memory.read(this.pc++);
           const result: i16 = this.xRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 1;
         }
         break;
@@ -649,9 +645,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.xRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 2;
         }
         break;
@@ -664,9 +660,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.xRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 3;
         }
         break;
@@ -676,9 +672,9 @@ export class CPU {
           trace("CPY");
           const memval: u16 = this.memory.read(this.pc++);
           const result: i16 = this.yRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 1;
         }
         break;
@@ -690,9 +686,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.yRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 2;
         }
         break;
@@ -705,9 +701,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: i16 = this.yRegister - memval;
-          this.statusRegister.carry = result >= 0 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = (result & 128) == 128 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result >= 0);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt((result & 128) === 128);
           this.cyclesRemaining = 3;
         }
         break;
@@ -719,8 +715,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -733,8 +729,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -748,8 +744,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -766,8 +762,8 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -778,8 +774,8 @@ export class CPU {
           trace("DEX");
 
           const result: u16 = this.xRegister - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -790,8 +786,8 @@ export class CPU {
           trace("DEY");
 
           const result: u16 = this.yRegister - 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -802,8 +798,8 @@ export class CPU {
           trace("EOR");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -816,8 +812,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -830,8 +826,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -845,8 +841,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -863,10 +859,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -881,10 +877,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator ^ memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -895,8 +891,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -909,8 +905,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -924,8 +920,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -942,8 +938,8 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -954,8 +950,8 @@ export class CPU {
           trace("INX");
 
           const result: u16 = this.xRegister + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -966,8 +962,8 @@ export class CPU {
           trace("INY");
 
           const result: u16 = this.yRegister + 1;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1003,8 +999,8 @@ export class CPU {
           trace("LDA");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1017,8 +1013,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -1031,8 +1027,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1046,8 +1042,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1064,10 +1060,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1082,10 +1078,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1094,8 +1090,8 @@ export class CPU {
           trace("LDX");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1108,8 +1104,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -1122,8 +1118,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.yRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1137,8 +1133,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1155,10 +1151,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1167,8 +1163,8 @@ export class CPU {
           trace("LDY");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1181,8 +1177,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -1195,8 +1191,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1210,8 +1206,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1228,10 +1224,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1240,9 +1236,9 @@ export class CPU {
           trace("LSR");
           const memval: u16 = this.accumulator;
           const result: u16 = memval >> 1;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1255,9 +1251,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval >> 1;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -1270,9 +1266,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval >> 1;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1286,9 +1282,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval >> 1;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1305,9 +1301,9 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = memval >> 1;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -1326,8 +1322,8 @@ export class CPU {
           trace("ORA");
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1340,8 +1336,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -1354,8 +1350,8 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1369,8 +1365,8 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1387,10 +1383,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1405,10 +1401,10 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = this.accumulator | memval;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1417,9 +1413,9 @@ export class CPU {
           trace("ROL");
           const memval: u16 = this.accumulator;
           const result: u16 = (memval << 1) + this.statusRegister.carry;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1432,9 +1428,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval << 1) + this.statusRegister.carry;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -1447,9 +1443,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval << 1) + this.statusRegister.carry;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1463,9 +1459,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval << 1) + this.statusRegister.carry;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1482,9 +1478,9 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval << 1) + this.statusRegister.carry;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -1495,9 +1491,9 @@ export class CPU {
           trace("ROR");
           const memval: u16 = this.accumulator;
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1510,9 +1506,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 4;
         }
@@ -1525,9 +1521,9 @@ export class CPU {
           const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1541,9 +1537,9 @@ export class CPU {
             this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100;
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 5;
         }
@@ -1560,9 +1556,9 @@ export class CPU {
             Math.floor(baseAddr / 256) != Math.floor(addr / 256);
           const memval: u16 = this.memory.read(addr);
           const result: u16 = (memval >> 1) + this.statusRegister.carry * 0x80;
-          this.statusRegister.carry = (memval & 1) == 1 ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.carry = boolToInt((memval & 1) == 1);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.memory.write(addr, (result & 0xff) as u8);
           this.cyclesRemaining = 6;
         }
@@ -1574,16 +1570,15 @@ export class CPU {
           const memval: u16 = this.memory.read(this.pc++);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1597,16 +1592,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 2;
         }
@@ -1620,16 +1614,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1644,16 +1637,15 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 3;
         }
@@ -1671,18 +1663,17 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1698,18 +1689,17 @@ export class CPU {
           const memval: u16 = this.memory.read(addr);
           const result: u16 =
             this.accumulator - memval - (1 - this.statusRegister.carry);
-          this.statusRegister.overflow =
+          this.statusRegister.overflow = boolToInt(
             (~(this.accumulator ^ memval) &
               (this.accumulator ^ result) &
               0x80) ===
-            0x80
-              ? 1
-              : 0;
-          this.statusRegister.carry = result > 0xff ? 1 : 0;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+              0x80
+          );
+          this.statusRegister.carry = boolToInt(result > 0xff);
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
-          this.cyclesRemaining = 3 + (pageCrossed ? 1 : 0);
+          this.cyclesRemaining = 3 + boolToInt(pageCrossed);
         }
         break;
 
@@ -1899,8 +1889,8 @@ export class CPU {
           trace("TAX");
 
           const result: u16 = this.accumulator;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.xRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1911,8 +1901,8 @@ export class CPU {
           trace("TAY");
 
           const result: u16 = this.accumulator;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.yRegister = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1923,8 +1913,8 @@ export class CPU {
           trace("TXA");
 
           const result: u16 = this.xRegister;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
@@ -1935,8 +1925,8 @@ export class CPU {
           trace("TYA");
 
           const result: u16 = this.yRegister;
-          this.statusRegister.zero = result === 0 ? 1 : 0;
-          this.statusRegister.negative = result !== 0 ? 1 : 0;
+          this.statusRegister.zero = boolToInt(result === 0);
+          this.statusRegister.negative = boolToInt(result !== 0);
           this.accumulator = (result & 0xff) as u8;
           this.cyclesRemaining = 1;
         }
