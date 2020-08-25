@@ -4,7 +4,11 @@ I've been fascinated with the 2600 ever since reading [Racing the Beam](https://
 
 I'm implementing the 2600 by implementing features as they appear in the [Atari 2600 Programming for Newbies](https://cdn.hackaday.io/files/1646277043401568/Atari_2600_Programming_for_Newbies_Revised_Edition.pdf) guide.
 
-
+## Other reference sources
+ 
+  - Addressing modes - https://slark.me/c64-downloads/6502-addressing-modes.pdf
+  - 6502 reference - http://www.obelisk.me.uk/6502/reference.html
+  - Another 6502 reference - https://www.masswerk.at/6502/6502_instruction_set.html
 
 
 ## Progress
@@ -25,66 +29,3 @@ I'm implementing the 2600 by implementing features as they appear in the [Atari 
   - [x] Session 14: Playfield Weirdness
   - [x] Session 15: Playfield Continued
   - [ ] Session 16: Letting the Assembler Do the Work
-
-## CPU Instructions
-
- - from: http://www.obelisk.me.uk/6502/reference.html
-
- - [x] ADC
- - [x] AND
- - [ ] ASL
- - [ ] BCC
- - [ ] BCS
- - [ ] BEQ
- - [ ] BIT
- - [ ] BMI
- - [x] BNE
- - [ ] BPL
- - [ ] BRK
- - [ ] BVC
- - [ ] BVS
- - [ ] CLC
- - [ ] CLD
- - [ ] CLI
- - [ ] CLV
- - [x] CMP
- - [ ] CPX
- - [ ] CPY
- - [ ] DEC
- - [ ] DEX
- - [x] DEY
- - [x] EOR
- - [ ] INC
- - [x] INX
- - [x] INY
- - [o] JMP - absolute mode only
- - [ ] JSR
- - [x] LDA
- - [o] LDX - immediate mode only
- - [o] LDY - immediate mode only
- - [o] LSR - accumulator mode only
- - [x] NOP
- - [x] ORA
- - [ ] PHA
- - [ ] PHP
- - [ ] PLA
- - [ ] PLP
- - [ ] ROL
- - [ ] ROR
- - [ ] RTI
- - [ ] RTS
- - [x] SBC
- - [ ] SEC
- - [ ] SED
- - [ ] SEI
- - [x] STA 
- - [o] STX - zero page only
- - [o] STY - zero page only
- - [ ] TAX
- - [ ] TAY
- - [ ] TSX
- - [ ] TXA
- - [ ] TXS
- - [ ] TYA
-
-

@@ -28,11 +28,11 @@ const applyAddressingMode = (mode: AddressingModeType) => {
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.ZeropageX:
       return `
-        const addr: u32 = this.memory.read(this.pc++) + this.xRegister;
+        const addr: u32 = (this.memory.read(this.pc++) + this.xRegister) & 0xff;
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.ZeropageY:
       return `
-        const addr: u32 = this.memory.read(this.pc++) + this.yRegister;
+        const addr: u32 = (this.memory.read(this.pc++) + this.yRegister) & 0xff;
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.Indirect:
       return `
@@ -45,7 +45,7 @@ const applyAddressingMode = (mode: AddressingModeType) => {
     case AddressingModeType.AbsoluteX:
       return `
         const baseAddr: u32 = this.memory.read(this.pc++) + this.memory.read(this.pc++) * 0x100
-        const addr = baseAddr + this.xRegister;
+        const addr: u32= baseAddr + this.xRegister;
         const pageCrossed = Math.floor(baseAddr/256) != Math.floor(addr/256);
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.AbsoluteY:
@@ -55,7 +55,16 @@ const applyAddressingMode = (mode: AddressingModeType) => {
         const pageCrossed = Math.floor(baseAddr/256) != Math.floor(addr/256);
         const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.IndirectX:
+      return `
+        const indirectAddr: u32 = (this.memory.read(this.pc++) + this.xRegister) & 0xff;
+        const addr: u32 = this.memory.read(indirectAddr) + this.memory.read(indirectAddr + 1) * 0x100;
+        const memval: u16 = this.memory.read(addr);`;
     case AddressingModeType.IndirectY:
+      return `
+      const operand: u32 = this.memory.read(this.pc++);
+      const addr: u32 = this.memory.read(operand) + this.memory.read(operand + 1) * 0x100;
+      const pageCrossed = Math.floor(addr/256) != Math.floor((addr + this.yRegister)/256);
+      const memval: u16 = this.memory.read(addr + this.yRegister);`;
     case AddressingModeType.Implied:
       return "";
   }
@@ -137,7 +146,6 @@ const generateBranch = (
   address: AddressingMode
 ) => `
   case 0x${address.opcode}: /* ${instruction.name} */ {
-    trace("${instruction.name}");
     const offset: i16 = this.memory.read(this.pc++);
     this.cyclesRemaining = ${address.cycles - 1};
     if (${replaceRegisters(instruction.condition)}) {
@@ -154,7 +162,6 @@ const generateAssignment = (
   address: AddressingMode
 ) => `
   case 0x${address.opcode}: /* ${instruction.name} */ {
-    trace("${instruction.name}");
     ${applyAddressingMode(address.mode)}
     const result: u16 = ${replaceRegisters(instruction.algorithm)};
     ${setFlags(instruction.flags)}
@@ -168,7 +175,6 @@ const generateTest = (
   address: AddressingMode
 ) => `
   case 0x${address.opcode}: /* ${instruction.name} */ {
-    trace("${instruction.name}");
     ${applyAddressingMode(address.mode)}
     const result: i16 = ${replaceRegisters(instruction.condition)};
     ${setFlags(instruction.flags, true)}
@@ -181,7 +187,6 @@ const generateJump = (
   address: AddressingMode
 ) => `
     case 0x${address.opcode}: /* ${instruction.name} */ {
-      trace("${instruction.name}");
       ${applyAddressingMode(address.mode)}
       ${handleCycles(address)};
       this.pc = addr;
@@ -193,7 +198,6 @@ const generateEmpty = (
   address: AddressingMode
 ) => `
   case 0x${address.opcode}: /* ${instruction.name} */ {
-    trace("${instruction.name}");
     ${applyAddressingMode(address.mode)}
     ${setFlags(instruction.flags)}
     ${handleCycles(address)};
@@ -202,12 +206,6 @@ const generateEmpty = (
 
 const generateAs = (instruction: Instruction) =>
   instruction.addressingModes
-    // TODO: implement indirect addressing
-    .filter(
-      a =>
-        a.mode !== AddressingModeType.IndirectX &&
-        a.mode !== AddressingModeType.IndirectY
-    )
     .map(address => {
       switch (instruction.type) {
         case "assignment":

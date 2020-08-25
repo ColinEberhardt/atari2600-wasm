@@ -118,80 +118,106 @@ describe("General operations", () => {
       expect(cpu.accumulator).toBe(35);
       expect(cpu.cyclesRemaining).toBe(3);
     });
-  });
-});
 
-// test cases from http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-describe("overflow", () => {
-  const add = (a, b) => {
-    cpu.accumulator = a;
-    loadROM("adc #$" + b.toString(16), wasmModule);
-    cpu.tick();
-  };
+    test("Indexed Indirect", () => {
+      // see: https://slark.me/c64-downloads/6502-addressing-modes.pdf
+      const memory = getMemoryBuffer(wasmModule);
+      memory[0x0104] = 0x81;
+      memory[0x3a] = 0x04;
+      memory[0x3b] = 0x01;
+      cpu.xRegister = 0xe9;
+      loadROM("LDA ($51,X)", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0x81);
+    });
 
-  test("One", () => {
-    add(0x50, 0x10);
-    expect(cpu.accumulator).toBe(0x60);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(0);
-  });
-
-  test("Two", () => {
-    add(0x50, 0x50);
-    expect(cpu.accumulator).toBe(0xa0);
-    expect(statusRegister.overflow).toBe(1);
-    expect(statusRegister.carry).toBe(0);
-  });
-
-  test("Three", () => {
-    add(0x50, 0x90);
-    expect(cpu.accumulator).toBe(0xe0);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(0);
-  });
-
-  test("Four", () => {
-    add(0x50, 0xd0);
-    expect(cpu.accumulator).toBe(0x20);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(1);
-  });
-
-  test("Five", () => {
-    add(0xd0, 0x10);
-    expect(cpu.accumulator).toBe(0xe0);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(0);
-  });
-
-  test("Six", () => {
-    add(0xd0, 0x50);
-    expect(cpu.accumulator).toBe(0x20);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(1);
-  });
-
-  test("Seven", () => {
-    add(0xd0, 0x90);
-    expect(cpu.accumulator).toBe(0x60);
-    expect(statusRegister.overflow).toBe(1);
-    expect(statusRegister.carry).toBe(1);
-  });
-
-  test("Eight", () => {
-    add(0xd0, 0xd0);
-    expect(cpu.accumulator).toBe(0xa0);
-    expect(statusRegister.overflow).toBe(0);
-    expect(statusRegister.carry).toBe(1);
+    test("Indirect Indexed", () => {
+      // see: https://stackoverflow.com/questions/46262435/indirect-y-indexed-addressing-mode-in-mos-6502
+      const memory = getMemoryBuffer(wasmModule);
+      memory[0x0238] = 0x81;
+      memory[0x2A] = 0x35;
+      memory[0x2b] = 0x02;
+      cpu.yRegister = 0x03;
+      loadROM("LDA ($2a),Y", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(0x81);
+    });
   });
 });
 
 describe("cpu instructions", () => {
-  test("ADC", () => {
-    cpu.accumulator = 25;
-    loadROM("adc #$04", wasmModule);
-    cpu.tick();
-    expect(cpu.accumulator).toBe(29);
+  describe("ADC", () => {
+    test("basic operation", () => {
+      cpu.accumulator = 25;
+      loadROM("adc #$04", wasmModule);
+      cpu.tick();
+      expect(cpu.accumulator).toBe(29);
+    });
+
+    // test cases from http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    describe("overflow", () => {
+      const add = (a, b) => {
+        cpu.accumulator = a;
+        loadROM("adc #$" + b.toString(16), wasmModule);
+        cpu.tick();
+      };
+
+      test("One", () => {
+        add(0x50, 0x10);
+        expect(cpu.accumulator).toBe(0x60);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(0);
+      });
+
+      test("Two", () => {
+        add(0x50, 0x50);
+        expect(cpu.accumulator).toBe(0xa0);
+        expect(statusRegister.overflow).toBe(1);
+        expect(statusRegister.carry).toBe(0);
+      });
+
+      test("Three", () => {
+        add(0x50, 0x90);
+        expect(cpu.accumulator).toBe(0xe0);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(0);
+      });
+
+      test("Four", () => {
+        add(0x50, 0xd0);
+        expect(cpu.accumulator).toBe(0x20);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(1);
+      });
+
+      test("Five", () => {
+        add(0xd0, 0x10);
+        expect(cpu.accumulator).toBe(0xe0);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(0);
+      });
+
+      test("Six", () => {
+        add(0xd0, 0x50);
+        expect(cpu.accumulator).toBe(0x20);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(1);
+      });
+
+      test("Seven", () => {
+        add(0xd0, 0x90);
+        expect(cpu.accumulator).toBe(0x60);
+        expect(statusRegister.overflow).toBe(1);
+        expect(statusRegister.carry).toBe(1);
+      });
+
+      test("Eight", () => {
+        add(0xd0, 0xd0);
+        expect(cpu.accumulator).toBe(0xa0);
+        expect(statusRegister.overflow).toBe(0);
+        expect(statusRegister.carry).toBe(1);
+      });
+    });
   });
 
   test("AND", () => {
