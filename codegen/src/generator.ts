@@ -118,7 +118,7 @@ const setFlags = (flags: FlagsMap, isTestInstruction: boolean = false) =>
     .map(([flag, value]) => {
       if (value < 8) {
         const factor = Math.pow(2, value);
-        return `this.statusRegister.${flag} = boolToInt((memval & ${factor}) == ${factor});`;
+        return `this.statusRegister.${flag} = u8((memval & ${factor}) == ${factor});`;
       }
       switch (value) {
         case FlagEffect.Cleared:
@@ -129,14 +129,14 @@ const setFlags = (flags: FlagsMap, isTestInstruction: boolean = false) =>
           return lookup(
             {
               carry: isTestInstruction
-                ? "this.statusRegister.carry = boolToInt(result >= 0);"
-                : "this.statusRegister.carry = boolToInt(result > 0xff);",
+                ? "this.statusRegister.carry = u8(result >= 0);"
+                : "this.statusRegister.carry = u8(result > 0xff);",
               negative: isTestInstruction
-                ? "this.statusRegister.negative = boolToInt((result & 128) === 128);"
-                : "this.statusRegister.negative = boolToInt(result !== 0);",
-              zero: "this.statusRegister.zero = boolToInt(result === 0);",
+                ? "this.statusRegister.negative = u8((result & 128) === 128);"
+                : "this.statusRegister.negative = u8(result !== 0);",
+              zero: "this.statusRegister.zero = u8(result === 0);",
               overflow:
-                "this.statusRegister.overflow = boolToInt((~(this.accumulator ^ memval) & (this.accumulator ^ result) & 0x80) === 0x80);"
+                "this.statusRegister.overflow = u8((~(this.accumulator ^ memval) & (this.accumulator ^ result) & 0x80) === 0x80);"
             },
             flag
           );
@@ -146,7 +146,7 @@ const setFlags = (flags: FlagsMap, isTestInstruction: boolean = false) =>
 
 const handleCycles = (address: AddressingMode) =>
   address.cycleModifier === CycleModifier.PageBoundaryCrossed
-    ? ` this.cyclesRemaining = ${address.cycles - 1} + boolToInt(pageCrossed);`
+    ? ` this.cyclesRemaining = ${address.cycles - 1} + u8(pageCrossed);`
     : ` this.cyclesRemaining = ${address.cycles - 1};`;
 
 const generateBranch = (
