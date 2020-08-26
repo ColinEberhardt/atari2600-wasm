@@ -13,7 +13,7 @@ $1000 - $1FFF ROM
 
 export default class Memory {
   buffer: Array<u8>;
-  tia: TIA;
+  tia: TIA = changetype<TIA>(0);
   stackPointer: u8;
 
   constructor() {

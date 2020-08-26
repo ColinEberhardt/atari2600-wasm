@@ -8,7 +8,7 @@ const { loadROM, getMemoryBuffer } = require("./test/common");
 
 (async () => {
   const wasmModule = await loader.instantiateStreaming(
-    fs.promises.readFile("./build/untouched.wasm")
+    fs.promises.readFile("./build/debug/atari2600.wasm")
   );
 
   const cpu = wasmModule.CPU.wrap(wasmModule.cpu);

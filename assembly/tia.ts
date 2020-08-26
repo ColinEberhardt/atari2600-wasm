@@ -225,10 +225,10 @@ export default class TIA {
   constructor(memory: Memory, cpu: CPU) {
     this.cpu = cpu;
     // TODO: construct a DataView on Memory for the specific region that holds the TIA registers
-    this.memory = memory;
-    memory.tia = this;
     this.display = new Array<u8>(VSCAN * HSCAN * 4);
     this.strobedWSYNC = false;
+    this.memory = memory;
+    memory.tia = this;
   }
 
   // intercepts all memory write operations to determine whether

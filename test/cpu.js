@@ -3,7 +3,7 @@ const loader = require("@assemblyscript/loader");
 const { loadROM, getMemoryBuffer } = require("./common");
 
 const compiled = new WebAssembly.Module(
-  fs.readFileSync(__dirname + "/../build/untouched.wasm")
+  fs.readFileSync(__dirname + "/../build/debug/atari2600.wasm")
 );
 let wasmModule, cpu, statusRegister;
 
@@ -12,7 +12,7 @@ beforeEach(() => {
     env: {
       trace: () => {}
     }
-  });
+  }).exports;
   cpu = wasmModule.CPU.wrap(wasmModule.cpu);
   statusRegister = wasmModule.StatusRegister.wrap(cpu.statusRegister);
 });

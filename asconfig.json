@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "debug": {
+      "debug": true
+    },
+    "release": {
+      "optimized": true
+    }
+  },
+  "options": {
+    "sourceMap": true,
+    "validate": true
+  }
+}

@@ -115,8 +115,8 @@ const run = async () => {
 
   const buildAndRun = async () => {
     const module = await loader.instantiateStreaming(
-      fetch("/build/untouched.wasm")
-    );
+      fetch("/build/debug/atari2600.wasm")
+    ).exports;
     const memory = module.Memory.wrap(module.consoleMemory);
     const tia = module.TIA.wrap(module.tia);
     const buffer = module.__getArrayView(memory.buffer);

@@ -17672,7 +17672,7 @@ PFBitmap5
 
     const buildAndRun = async () => {
       const module = await loader.instantiateStreaming(
-        fetch("/build/untouched.wasm")
+        fetch("/build/debug/atari2600.wasm")
       );
       const memory = module.Memory.wrap(module.consoleMemory);
       const tia = module.TIA.wrap(module.tia);
