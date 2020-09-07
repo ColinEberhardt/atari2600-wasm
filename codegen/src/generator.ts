@@ -4,6 +4,7 @@ import {
   FlagsMap,
   FlagEffect,
   Generator,
+  InstructionGenerator,
   BranchInstruction,
   AddressingMode,
   Instruction,
@@ -166,76 +167,59 @@ const generateBranch = (
   }
   break;`;
 
-const generateAssignment = (
-  instruction: AssignmentInstruction,
-  address: AddressingMode
-) => `
+function generateCase<T extends Instruction>(
+  adaptee: InstructionGenerator<T>
+): InstructionGenerator<T> {
+  return (instruction, address) =>
+    `
   case 0x${address.opcode}: /* ${instruction.name} */ {
+    trace("[CPU] ${instruction.name}");
+    ${adaptee(instruction, address)}
+    ${handleCycles(address)};
+  }
+  break;`;
+}
+
+const generateAssignment: InstructionGenerator<AssignmentInstruction> = generateCase(
+  (instruction, address) => `
     ${applyAddressingMode(address.mode)}
     const result: u16 = ${replaceRegisters(instruction.expression)};
     ${setFlags(instruction.flags)}
-    ${assignValue(instruction.assignee, address.mode)}
-    ${handleCycles(address)};
-  }
-  break;`;
+    ${assignValue(instruction.assignee, address.mode)}`
+);
 
-const generatePush = (
-  instruction: PushInstruction,
-  address: AddressingMode
-) => `
-  case 0x${address.opcode}: /* ${instruction.name} */ {
+const generatePush: InstructionGenerator<PushInstruction> = generateCase(
+  (instruction, address) => `
     ${applyAddressingMode(address.mode)}
     const result: u16 = ${replaceRegisters(instruction.expression)};
-    this.memory.push((result & 0xff) as u8);
-    ${handleCycles(address)};
-  }
-  break;`;
+    this.memory.push((result & 0xff) as u8);`
+);
 
-const generatePop = (
-  instruction: PopInstruction,
-  address: AddressingMode
-) => `
-  case 0x${address.opcode}: /* ${instruction.name} */ {
+const generatePop: InstructionGenerator<PopInstruction> = generateCase(
+  (instruction, address) => `
     ${applyAddressingMode(address.mode)}
     const result = this.memory.pop();
-    ${assignValue(instruction.assignee, address.mode)}
-    ${handleCycles(address)};
-  }
-  break;`;
+    ${assignValue(instruction.assignee, address.mode)}`
+);
 
-const generateTest = (
-  instruction: TestInstruction,
-  address: AddressingMode
-) => `
-  case 0x${address.opcode}: /* ${instruction.name} */ {
+const generateTest: InstructionGenerator<TestInstruction> = generateCase(
+  (instruction, address) => `
     ${applyAddressingMode(address.mode)}
     const result: i16 = ${replaceRegisters(instruction.condition)};
-    ${setFlags(instruction.flags, true)}
-    ${handleCycles(address)};
-  }
-  break;`;
+    ${setFlags(instruction.flags, true)}`
+);
 
-const generateJump = (
-  instruction: JumpInstruction,
-  address: AddressingMode
-) => `
-    case 0x${address.opcode}: /* ${instruction.name} */ {
+const generateJump: InstructionGenerator<JumpInstruction> = generateCase(
+  (_, address) => `
       ${applyAddressingMode(address.mode)}
-      ${handleCycles(address)};
-      this.pc = addr;
-    }
-    break;`;
+      this.pc = addr;`
+);
 
-const generateEmpty = (
-  instruction: EmptyInstruction,
-  address: AddressingMode
-) => `
-  case 0x${address.opcode}: /* ${instruction.name} */ {
+const generateEmpty: InstructionGenerator<EmptyInstruction> = generateCase(
+  (instruction, address) => `
     ${applyAddressingMode(address.mode)}
-    ${setFlags(instruction.flags)}
-    ${handleCycles(address)};
-  }
-  break;`;
+    ${setFlags(instruction.flags)}`
+);
 
 const generateAs = (instruction: Instruction) =>
   instruction.addressingModes

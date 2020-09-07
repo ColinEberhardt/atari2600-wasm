@@ -10,7 +10,7 @@ let wasmModule, cpu, statusRegister, cpuMemory;
 beforeEach(() => {
   wasmModule = loader.instantiateSync(compiled, {
     env: {
-      trace: () => {}
+      // trace: () => {}
     }
   });
   cpu = wasmModule.CPU.wrap(wasmModule.cpu);
@@ -726,4 +726,18 @@ Loop
     cpu.tick();
     expect(cpu.accumulator).toBe(5);
   });
+});
+
+describe("integration tests", () => {
+  test.only("clean start macro", () => {
+    cpu.xRegister = 5;
+    cpu.yRegister = 10;
+    cpu.accumulator = 15;
+    loadROM("CLEAN_START", wasmModule);
+    cpu.tick(5025);
+    console.log(cpu.accumulator);
+    console.log(cpu.xRegister);
+    console.log(cpu.yRegister);
+  })
+
 });

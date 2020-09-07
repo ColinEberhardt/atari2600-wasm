@@ -6,6 +6,11 @@ export interface Generator {
   (insructions: InstructionSet): string;
 }
 
+export type InstructionGenerator<T extends Instruction> = (
+  instruction: T,
+  address: AddressingMode
+) => string;
+
 type InstructionSet = Instruction[];
 
 export enum FlagEffect {

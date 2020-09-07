@@ -234,14 +234,19 @@ export default class TIA {
   // intercepts all memory write operations to determine whether
   // any of the special registers have been written to
   memoryWrite(addr: u32): void {
-    trace("strobe");
     if (addr == Register.WSYNC) {
+      trace("WSYNC strobed, CPU paused");
       this.cpu.paused = true;
+    }
+    if (addr == Register.VSYNC) {
+      // if the VSYNC is written and zero, start a new frame
+      if (this.memory.read(Register.VSYNC) == 0) {
+        this.clock = 0;
+      }
     }
   }
 
   tick(ticks: u32 = 1): void {
-    trace("tia tick");
     for (let i: u32 = 0; i < ticks; i++) {
       this.tickOnce();
     }
