@@ -554,6 +554,15 @@ TXA  Transfer Index X to Accumulator
      --------------------------------------------
      implied       TXA           8A    1     2
 
+TXS  Transfer Index X to Stack Pointer
+
+     X -> SP                          N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXS           9A    1     2
+
 TYA  Transfer Index Y to Accumulator
 
      Y -> A                           N Z C I D V

@@ -1,19 +1,22 @@
-  processor 6502
-  include "vcs.h"
-  include "macro.h"
 
-  org  $1000
+	processor 6502
+	include "vcs.h"
+	include "macro.h"
 
-Start  
-  lda #92
-  sta COLUPF
+	org  $f000
 
-  lda #%10010101
-  sta PF0
-  sta PF1
-  sta PF2
-  lda #%00000000
-  sta CTRLPF
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;	
+; We're going to mess with the playfield registers, PF0, PF1 and PF2.
+; Between them, they represent 20 bits of bitmap information
+; which are replicated over 40 wide pixels for each scanline.
+; By changing the registers before each scanline, we can draw bitmaps.
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Counter	equ $81
+
+Start	CLEAN_START
 
 NextFrame
 ; Enable VBLANK (disable output)
@@ -38,32 +41,39 @@ NextFrame
     sta WSYNC  ; accessing WSYNC stops the CPU until next scanline
   REPEND
 
-; Re-enable output (disable VBLANK)
-  lda #0
-  sta VBLANK
-        
-; 192 scanlines are visible
-; We'll draw some rainbows
-  ldx #0
-  REPEAT 192
-    inx
-    stx COLUBK
-    sta WSYNC
-  REPEND
 
-; Enable VBLANK again
-  lda #2
-  sta VBLANK
+; Set foreground color
+	lda #$82
+        sta COLUPF
+; Draw the 192 scanlines
+	ldx #192
+	lda #0		; changes every scanline
+        ;lda Counter    ; uncomment to scroll!
+ScanLoop
+	sta WSYNC	; wait for next scanline
+	sta PF0		; set the PF1 playfield pattern register
+	sta PF1		; set the PF1 playfield pattern register
+	sta PF2		; set the PF2 playfield pattern register
+	stx COLUBK	; set the background color
+	adc #1		; increment A
+	dex
+	bne ScanLoop
+
+; Reenable VBLANK for bottom (and top of next frame)
+	lda #2
+        sta VBLANK
+
         
-; 30 lines of overscan to complete the frame
-  REPEAT 30
-    sta WSYNC
-  REPEND
-  
+; 30 lines of overscan
+	ldx #30
+LVOver	sta WSYNC
+	dex
+	bne LVOver
+	
 ; Go back and do another frame
-  jmp NextFrame
-
-
-  org $1ffc
-  .word Start
-  .word Start
+	inc Counter
+	jmp NextFrame
+	
+	org $fffc
+	.word Start
+	.word Start

@@ -5,7 +5,7 @@ const { loadROM, getMemoryBuffer } = require("./common");
 const compiled = new WebAssembly.Module(
   fs.readFileSync(__dirname + "/../build/untouched.wasm")
 );
-let wasmModule, cpu, statusRegister;
+let wasmModule, cpu, statusRegister, cpuMemory;
 
 beforeEach(() => {
   wasmModule = loader.instantiateSync(compiled, {
@@ -15,6 +15,7 @@ beforeEach(() => {
   });
   cpu = wasmModule.CPU.wrap(wasmModule.cpu);
   statusRegister = wasmModule.StatusRegister.wrap(cpu.statusRegister);
+  cpuMemory = wasmModule.Memory.wrap(cpu.memory);
 });
 
 describe("General operations", () => {
@@ -710,6 +711,13 @@ Loop
     loadROM(`txa`, wasmModule);
     cpu.tick();
     expect(cpu.accumulator).toBe(5);
+  });
+
+  test("TXS", () => {
+    cpu.xRegister = 5;
+    loadROM(`txs`, wasmModule);
+    cpu.tick();
+    expect(cpuMemory.stackPointer).toBe(5);
   });
 
   test("TYA", () => {

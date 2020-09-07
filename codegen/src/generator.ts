@@ -104,6 +104,7 @@ const assignValue = (assignee: string, addressMode: AddressingModeType) =>
       X: "this.xRegister = (result & 0xff) as u8;",
       Y: "this.yRegister = (result & 0xff) as u8;",
       SR: "this.statusRegister.unpack(result as u8);",
+      SP: "this.memory.stackPointer = (result & 0xff) as u8;",
       PC: "this.pc = addr;",
       M:
         addressMode == AddressingModeType.Accumulator

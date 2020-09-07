@@ -1977,6 +1977,15 @@ export class CPU {
         }
         break;
 
+      case 0x9a:
+        /* TXS */ {
+          const result: u16 = this.xRegister;
+
+          this.memory.stackPointer = (result & 0xff) as u8;
+          this.cyclesRemaining = 1;
+        }
+        break;
+
       case 0x98:
         /* TYA */ {
           const result: u16 = this.yRegister;
